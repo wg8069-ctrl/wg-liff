@@ -96,14 +96,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="card">
     <div class="card-title">發生單位</div>
     <div class="g2" id="unit-g">
-      <button class="sb" onclick="pick(this,'unit-g','unit')">🏭 生管一廠</button>
-      <button class="sb" onclick="pick(this,'unit-g','unit')">🏭 生管二廠</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">🏭 本廠</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">🏭 二廠</button>
       <button class="sb" onclick="pick(this,'unit-g','unit')">🔍 品保</button>
       <button class="sb" onclick="pick(this,'unit-g','unit')">📦 倉管收料</button>
       <button class="sb" onclick="pick(this,'unit-g','unit')">🚚 外包</button>
       <button class="sb" onclick="pickOther(this,'unit-g','unit','unit-other-in')">✏️ 其他</button>
     </div>
-    <input class="tinput" id="unit-other-in" placeholder="請輸入單位名稱" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
+    <input class="tinput" id="unit-other-in" placeholder="請輸入發生單位" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
   </div>
   <div class="card">
     <div class="card-title">責任單位</div>
@@ -139,8 +139,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="anom-other-in" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
   </div>
   <div class="card">
-    <div class="card-title">品名</div>
-    <input class="tinput" id="prod-in" placeholder="例：WC4-795B-CR" oninput="D.prod=this.value.trim();chk2()">
+    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400">（不知道可以不填）</span></div>
+    <input class="tinput" id="prod-in" placeholder="例：WC4-795B-CR（可略過）" oninput="D.prod=this.value.trim();chk2()">
     <div class="recent" id="recent-list"></div>
     <div class="hint">最近使用品名，點一下帶入</div>
   </div>
@@ -209,11 +209,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <div class="step" id="s4">
   <div class="card">
     <div class="card-title">異常照片</div>
-    <div class="photo-zone" id="pz" onclick="document.getElementById('pf').click()">
-      <div class="pi">📷</div>
-      <div class="pt" id="pt">點這裡拍照或選圖</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <button class="sb" style="padding:16px 6px;" onclick="document.getElementById('pf-camera').click()">📷<br><br>拍照</button>
+      <button class="sb" style="padding:16px 6px;" onclick="document.getElementById('pf-gallery').click()">🖼️<br><br>從圖庫選</button>
     </div>
-    <input type="file" id="pf" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this)">
+    <input type="file" id="pf-camera" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this)">
+    <input type="file" id="pf-gallery" accept="image/*" style="display:none" onchange="handlePic(this)">
     <img id="pp" style="width:100%;border-radius:8px;margin-top:10px;display:none;max-height:300px;object-fit:cover;">
   </div>
   <div class="nav">
@@ -228,9 +229,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="card">
     <div class="card-title">品質判定</div>
     <div class="g3" id="judge-g">
-      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'驗退','on-red')">❌<br><br>驗退</button>
-      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'特採','on-amber')">⚠️<br><br>特採</button>
-      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'加工','on')">🔧<br><br>加工</button>
+      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'驗退X','on-red')">❌<br><br>驗退 X</button>
+      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'特採△','on-amber')">⚠️<br><br>特採 △</button>
+      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'加工○','on')">🔧<br><br>加工 ○</button>
     </div>
   </div>
   <div class="nav">
@@ -266,8 +267,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <script>
 // ========== 設定區 ==========
 // 部署後把這個換成你的 Render API 網址
-var API_URL = 'https://winqc.onrender.com';
-var LIFF_ID = '2009600334-UpN6esDu';   // LIFF ID 之後再填，先填 API 網址
+var API_URL = 'https://YOUR-APP.onrender.com';
+var LIFF_ID = 'YOUR_LIFF_ID';
 // ============================
 
 var D = {unit:'',resp:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,judge:''};
@@ -375,7 +376,7 @@ function setProd(v){
 
 function chk2(){
   D.prod = document.getElementById('prod-in').value.trim();
-  document.getElementById('n2').disabled = !(D.anom.length>0 && D.prod);
+  document.getElementById('n2').disabled = !(D.anom.length > 0);
 }
 
 function pickR(btn, gridId, key){
@@ -408,8 +409,6 @@ function handlePic(inp){
       var pp = document.getElementById('pp');
       pp.src = e.target.result;
       pp.style.display = 'block';
-      document.getElementById('pz').classList.add('on');
-      document.getElementById('pt').textContent = '照片已選取 ✓ （點擊可更換）';
       D.photo = true;
       D.photoData = e.target.result;
       document.getElementById('n4').disabled = false;
@@ -486,10 +485,11 @@ function submitForm(){
   .then(function(res){
     if(res.success){
       go(7);
-      document.getElementById('dnum').textContent = D._num;
+      document.getElementById('dnum').textContent = res.number || D._num;
       document.getElementById('nbox').innerHTML =
+        '<b>回報人：</b>' + (res.reporter || '(未知)') + '<br>' +
         '<b>已通知：</b>品保主管、' + D.unit + ' 主管<br>' +
-        '<b>品名：</b>' + D.prod + '<br>' +
+        '<b>品名：</b>' + (D.prod || '(未填)') + '<br>' +
         '<b>異常：</b>' + D.anom.join('、') + '<br>' +
         '<b>比例：</b>' + D.samp + ' / ' + D.bad + '<br>' +
         '<b>判定：</b>' + D.judge;
