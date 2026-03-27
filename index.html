@@ -153,23 +153,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <div class="step" id="s3">
   <div class="card">
     <div class="card-title">訂單數量</div>
-    <div class="g4" id="qty-g">
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">1</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">2</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">3</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">4</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">5</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">6</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">7</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">8</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">9</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">0</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">504</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">1008</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">2016</button>
-      <button class="rb" id="qty-other" onclick="showQtyInput()">其他</button>
+    <div style="background:#f9f9f9;border:1.5px solid #ddd;border-radius:10px;padding:12px 16px;font-size:28px;font-weight:600;color:#222;text-align:right;min-height:52px;margin-bottom:10px;letter-spacing:2px;" id="qty-display">—</div>
+    <div class="g4" style="gap:8px;">
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('1')">1</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('2')">2</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('3')">3</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;background:#ffeaea;border-color:#e24b4a;color:#a32d2d;" onclick="qtyClear()">清除</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('4')">4</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('5')">5</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('6')">6</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;background:#fff3cd;border-color:#ba7517;color:#633806;" onclick="qtyBackspace()">⌫</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('7')">7</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('8')">8</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('9')">9</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('0')">0</button>
     </div>
-    <input class="tinput" id="qty-in" placeholder="輸入數量" style="display:none;margin-top:8px;" type="number" oninput="D.qty=this.value;chk3()">
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtyPreset(504)">504</button>
+      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtyPreset(1008)">1008</button>
+      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtyPreset(2016)">2016</button>
+    </div>
   </div>
   <div class="card">
     <div class="card-title">不良比例</div>
@@ -457,6 +460,29 @@ function pickR(btn, gridId, key){
   btn.classList.add('on');
   D[key] = btn.textContent.trim();
   updateRatio();
+}
+
+function qtyKey(k){
+  if(D.qty==='0') D.qty='';
+  if(D.qty.length >= 6) return;
+  D.qty = D.qty + k;
+  document.getElementById('qty-display').textContent = D.qty || '—';
+  chk3();
+}
+function qtyBackspace(){
+  D.qty = D.qty.slice(0,-1);
+  document.getElementById('qty-display').textContent = D.qty || '—';
+  chk3();
+}
+function qtyClear(){
+  D.qty = '';
+  document.getElementById('qty-display').textContent = '—';
+  chk3();
+}
+function qtyPreset(v){
+  D.qty = String(v);
+  document.getElementById('qty-display').textContent = D.qty;
+  chk3();
 }
 
 function showQtyInput(){
