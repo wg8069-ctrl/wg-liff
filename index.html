@@ -106,7 +106,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="unit-other-in" placeholder="請輸入發生單位" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
     <div class="recent" id="unit-recent-list"></div>
     <div class="hint" id="unit-recent-hint" style="display:none;">最近使用，點一下帶入</div>
-    <div class="hint-rent">
   </div>
   <div class="card">
     <div class="card-title">責任單位</div>
@@ -146,6 +145,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="hint">最近使用品名，點一下帶入</div>
   </div>
   <div class="nav">
+    
     <button class="btn-back" onclick="go(1)">← 返回</button>
     <button class="btn-next" id="n2" onclick="go(3)" disabled>下一步 →</button>
   </div>
@@ -166,6 +166,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="rb" onclick="pickR(this,'qty-g','qty')">8</button>
       <button class="rb" onclick="pickR(this,'qty-g','qty')">9</button>
       <button class="rb" onclick="pickR(this,'qty-g','qty')">0</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">504</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">1008</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">2016</button>
       <button class="rb" id="qty-other" onclick="showQtyInput()">其他</button>
     </div>
     <input class="tinput" id="qty-in" placeholder="輸入數量" style="display:none;margin-top:8px;" type="number" oninput="D.qty=this.value;chk3()">
