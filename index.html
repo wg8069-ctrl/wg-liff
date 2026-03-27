@@ -104,18 +104,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="sb" onclick="pickOther(this,'unit-g','unit','unit-other-in')">✏️ 其他</button>
     </div>
     <input class="tinput" id="unit-other-in" placeholder="請輸入發生單位" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
+    <div class="recent" id="unit-recent-list"></div>
+    <div class="hint" id="unit-recent-hint" style="display:none;">最近使用，點一下帶入</div>
   </div>
   <div class="card">
     <div class="card-title">責任單位</div>
-    <div class="g3" id="resp-g">
-      <button class="sb" onclick="pick(this,'resp-g','resp')">CR<br><small style="color:#888;font-size:11px">成型</small></button>
-      <button class="sb" onclick="pick(this,'resp-g','resp')">AS<br><small style="color:#888;font-size:11px">組裝</small></button>
-      <button class="sb" onclick="pick(this,'resp-g','resp')">QC<br><small style="color:#888;font-size:11px">品保</small></button>
-      <button class="sb" onclick="pick(this,'resp-g','resp')">WH<br><small style="color:#888;font-size:11px">倉庫</small></button>
-      <button class="sb" onclick="pick(this,'resp-g','resp')">供應商</button>
+    <div class="g2" id="resp-g">
+      <button class="sb" onclick="pick(this,'resp-g','resp')">偉剛</button>
       <button class="sb" onclick="pickOther(this,'resp-g','resp','resp-other-in')">✏️ 其他</button>
     </div>
     <input class="tinput" id="resp-other-in" placeholder="請輸入責任單位" style="display:none;margin-top:8px;" oninput="D.resp=this.value.trim();chk1()">
+    <div class="recent" id="resp-recent-list"></div>
+    <div class="hint" id="resp-recent-hint" style="display:none;">最近使用，點一下帶入</div>
   </div>
   <div class="nav">
     <button class="btn-next" id="n1" onclick="go(2)" disabled>下一步 →</button>
@@ -275,6 +275,8 @@ var D = {unit:'',resp:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photo
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds')||'["WC4-795B-CR","WC4-800A","CB26-001"]');
+var recentUnits = JSON.parse(localStorage.getItem('recentUnits')||'[]');
+var recentResps = JSON.parse(localStorage.getItem('recentResps')||'[]');
 
 liff.init({liffId: LIFF_ID}).then(function(){
   if(liff.isLoggedIn()){
@@ -283,6 +285,49 @@ liff.init({liffId: LIFF_ID}).then(function(){
 }).catch(function(){ console.log('LIFF init failed, running in browser mode'); });
 
 renderRecent();
+renderUnitRecent();
+renderRespRecent();
+
+function renderUnitRecent(){
+  var el = document.getElementById('unit-recent-list');
+  var hint = document.getElementById('unit-recent-hint');
+  if(!recentUnits.length){ el.innerHTML=''; hint.style.display='none'; return; }
+  hint.style.display='block';
+  el.innerHTML='';
+  recentUnits.slice(0,5).forEach(function(v){
+    var b=document.createElement('button');
+    b.className='rbtn'; b.textContent=v;
+    b.onclick=function(){ pickUnitRecent(v); };
+    el.appendChild(b);
+  });
+}
+
+function pickUnitRecent(v){
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  document.getElementById('unit-other-in').style.display='none';
+  D.unit=v; chk1();
+  renderUnitRecent();
+}
+
+function renderRespRecent(){
+  var el = document.getElementById('resp-recent-list');
+  var hint = document.getElementById('resp-recent-hint');
+  if(!recentResps.length){ el.innerHTML=''; hint.style.display='none'; return; }
+  hint.style.display='block';
+  el.innerHTML='';
+  recentResps.slice(0,5).forEach(function(v){
+    var b=document.createElement('button');
+    b.className='rbtn'; b.textContent=v;
+    b.onclick=function(){ pickRespRecent(v); };
+    el.appendChild(b);
+  });
+}
+
+function pickRespRecent(v){
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  document.getElementById('resp-other-in').style.display='none';
+  D.resp=v; chk1();
+}
 
 function renderRecent(){
   var el = document.getElementById('recent-list');
@@ -455,6 +500,24 @@ function submitForm(){
   recentProds.unshift(D.prod);
   recentProds = recentProds.slice(0,8);
   localStorage.setItem('recentProds', JSON.stringify(recentProds));
+
+  // 儲存最近發生單位
+  if(D.unit){
+    var ui = recentUnits.indexOf(D.unit);
+    if(ui > -1) recentUnits.splice(ui,1);
+    recentUnits.unshift(D.unit);
+    recentUnits = recentUnits.slice(0,5);
+    localStorage.setItem('recentUnits', JSON.stringify(recentUnits));
+  }
+
+  // 儲存最近責任單位
+  if(D.resp){
+    var ri = recentResps.indexOf(D.resp);
+    if(ri > -1) recentResps.splice(ri,1);
+    recentResps.unshift(D.resp);
+    recentResps = recentResps.slice(0,5);
+    localStorage.setItem('recentResps', JSON.stringify(recentResps));
+  }
 
   var payload = {
     number: D._num,
