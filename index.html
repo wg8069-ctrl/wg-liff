@@ -122,7 +122,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="sb" onclick="pickSeries(this,'2 系列')">2 系列</button>
       <button class="sb" onclick="pickOther(this,'series-g','series','series-other-in')">✏️ 其他</button>
     </div>
-    <input class="tinput" id="series-other-in" placeholder="請輸入系列別" style="display:none;margin-top:8px;" oninput="D.series=this.value.trim();chk2()">
+    <input class="tinput" id="series-other-in" placeholder="輸入數字，例如：3" style="display:none;margin-top:8px;" oninput="autoSeries(this.value)">
   </div>
   <div class="card">
     <div class="card-title">異常狀況（可多選）</div>
@@ -387,6 +387,18 @@ function pick(btn, gridId, key){
   var inp = document.getElementById(inId);
   if(inp){ inp.style.display='none'; inp.value=''; }
   if(key==='unit'||key==='resp') chk1();
+}
+
+function autoSeries(val){
+  var v = val.trim();
+  if(v === '') { D.series = ''; chk2(); return; }
+  // 已包含「系列」或「共用」就不加
+  if(v.includes('系列') || v.includes('共用')){
+    D.series = v;
+  } else {
+    D.series = v + ' 系列';
+  }
+  chk2();
 }
 
 function pickSeries(btn, val){
