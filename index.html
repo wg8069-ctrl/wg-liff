@@ -100,7 +100,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="sb" onclick="pick(this,'unit-g','unit')">二廠</button>
       <button class="sb" onclick="pick(this,'unit-g','unit')">品保</button>
       <button class="sb" onclick="pick(this,'unit-g','unit')">資管</button>
-      <button class="sb" onclick="pick(this,'unit-g','unit')">外發</button>
       <button class="sb" onclick="pickOther(this,'unit-g','unit','unit-other-in')">✏️ 其他</button>
     </div>
     <input class="tinput" id="unit-other-in" placeholder="請輸入發生單位" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
@@ -127,19 +126,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="card">
     <div class="card-title">異常狀況（可多選）</div>
     <div class="g2" id="anom-g">
-      <button class="sb" onclick="multi(this)">外觀不良<br><small style="color:#888;font-size:11px">刮傷/髒污</small></button>
-      <button class="sb" onclick="multi(this)">斷差<br><small style="color:#888;font-size:11px">段差/錯位</small></button>
-      <button class="sb" onclick="multi(this)">尺寸異常<br><small style="color:#888;font-size:11px">超出公差</small></button>
-      <button class="sb" onclick="multi(this)">組裝困難<br><small style="color:#888;font-size:11px">鎖不緊/卡住</small></button>
-      <button class="sb" onclick="multi(this)">功能失效<br><small style="color:#888;font-size:11px">測試不通過</small></button>
-      <button class="sb" onclick="multi(this)">來料不良<br><small style="color:#888;font-size:11px">進料異常</small></button>
+      <button class="sb" onclick="multi(this)">外觀不良<br><small style="color:#888;font-size:11px"></small></button>
+      <button class="sb" onclick="multi(this)">尺寸異常<br><small style="color:#888;font-size:11px"></small></button>
+      <button class="sb" onclick="multi(this)">功能異常<br><small style="color:#888;font-size:11px"></small></button>
+      <button class="sb" onclick="multi(this)">來料不足<br><small style="color:#888;font-size:11px"></small></button>
+      <button class="sb" onclick="multi(this)">未附六面圖<br><small style="color:#888;font-size:11px"></small></button>
       <button class="sb" onclick="multi(this)">標示錯誤</button>
       <button class="sb" onclick="multiOther(this)">✏️ 其他</button>
     </div>
     <input class="tinput" id="anom-other-in" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
   </div>
   <div class="card">
-    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400">（不知道可以不填）</span></div>
+    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
     <input class="tinput" id="prod-in" placeholder="例：WC4-795B-CR（可略過）" oninput="D.prod=this.value.trim();chk2()">
     <div class="recent" id="recent-list"></div>
     <div class="hint">最近使用品名，點一下帶入</div>
