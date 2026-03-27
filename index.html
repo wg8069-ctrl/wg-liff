@@ -208,20 +208,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 4 -->
 <div class="step" id="s4">
   <div class="card">
-    <div class="card-title">異常照片</div>
+    <div class="card-title">異常照片（最多 2 張）</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-      <button class="sb" style="padding:16px 6px;" onclick="document.getElementById('pf-camera').click()">📷<br><br>拍照</button>
-      <button class="sb" style="padding:16px 6px;" onclick="document.getElementById('pf-gallery').click()">🖼️<br><br>從圖庫選</button>
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera1').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 1 張</span></button>
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery1').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 1 張</span></button>
     </div>
-    <input type="file" id="pf-camera" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this)">
-    <input type="file" id="pf-gallery" accept="image/*" style="display:none" onchange="handlePic(this)">
-    <img id="pp" style="width:100%;border-radius:8px;margin-top:10px;display:none;max-height:300px;object-fit:cover;">
+    <input type="file" id="pf-camera1" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,1)">
+    <input type="file" id="pf-gallery1" accept="image/*" style="display:none" onchange="handlePic(this,1)">
+    <img id="pp1" style="width:100%;border-radius:8px;margin-top:6px;display:none;max-height:200px;object-fit:cover;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;margin-bottom:8px;">
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera2').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery2').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
+    </div>
+    <input type="file" id="pf-camera2" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,2)">
+    <input type="file" id="pf-gallery2" accept="image/*" style="display:none" onchange="handlePic(this,2)">
+    <img id="pp2" style="width:100%;border-radius:8px;margin-top:6px;display:none;max-height:200px;object-fit:cover;">
   </div>
   <div class="nav">
     <button class="btn-back" onclick="go(3)">← 返回</button>
     <button class="btn-next" id="n4" onclick="go(5)" disabled>下一步 →</button>
   </div>
-  <div class="skip" onclick="D.photo=false;D.photoData=null;document.getElementById('n4').disabled=false;go(5)">沒有照片，先跳過</div>
+  <div class="skip" onclick="D.photo=false;D.photoData=null;D.photoData2=null;document.getElementById('n4').disabled=false;go(5)">沒有照片，先跳過</div>
 </div>
 
 <!-- Step 5 -->
@@ -267,11 +274,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <script>
 // ========== 設定區 ==========
 // 部署後把這個換成你的 Render API 網址
-var API_URL = 'https://winqc.onrender.com';
-var LIFF_ID = '2009600334-UpN6esDu';
+var API_URL = 'https://YOUR-APP.onrender.com';
+var LIFF_ID = 'YOUR_LIFF_ID';
 // ============================
 
-var D = {unit:'',resp:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,judge:''};
+var D = {unit:'',resp:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:''};
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds')||'["WC4-795B-CR","WC4-800A","CB26-001"]');
@@ -447,15 +454,16 @@ function updateRatio(){
 
 function chk3(){ document.getElementById('n3').disabled = !(D.qty && D.samp && D.bad); }
 
-function handlePic(inp){
+function handlePic(inp, num){
   if(inp.files && inp.files[0]){
     var reader = new FileReader();
     reader.onload = function(e){
-      var pp = document.getElementById('pp');
+      var pp = document.getElementById('pp'+num);
       pp.src = e.target.result;
       pp.style.display = 'block';
       D.photo = true;
-      D.photoData = e.target.result;
+      if(num===1) D.photoData = e.target.result;
+      if(num===2) D.photoData2 = e.target.result;
       document.getElementById('n4').disabled = false;
     };
     reader.readAsDataURL(inp.files[0]);
@@ -474,7 +482,7 @@ function buildSummary(){
   var d = t.getFullYear()+'/'+(t.getMonth()+1).toString().padStart(2,'0')+'/'+t.getDate().toString().padStart(2,'0');
   D._date = d;
   var jhtml = D.judge==='驗退X'?'<span class="tag tg-red">驗退 X</span>':D.judge==='特採△'?'<span class="tag tg-amber">特採 △</span>':'<span class="tag tg-green">加工 ○</span>';
-  var phtml = D.photo?'<span style="color:#006600">已附照片 ✓</span>':'<span style="color:#aaa">未附照片</span>';
+  var phtml = D.photo ? '<span style="color:#006600">已附照片 ✓' + (D.photoData2?' (2張)':' (1張)') + '</span>' : '<span style="color:#aaa">未附照片</span>';
   document.getElementById('stbl').innerHTML =
     row('單號','<span style="color:#aaa">送出後自動產生</span>')+row('日期',d)+row('發生單位',D.unit)+row('責任單位',D.resp)+
     row('品名',D.prod||'(未填)')+row('異常狀況',D.anom.join('、'))+
@@ -532,6 +540,7 @@ function submitForm(){
     ratio: D.samp + ' / ' + D.bad,
     judge: D.judge,
     photoData: D.photoData,
+    photoData2: D.photoData2,
     userId: userId
   };
 
