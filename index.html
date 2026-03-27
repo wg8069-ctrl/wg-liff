@@ -482,6 +482,8 @@ function buildSummary(){
     row('品質判定',jhtml)+row('照片',phtml);
 }
 
+function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
+
 function showErr(msg){
   var e = document.getElementById('errmsg');
   e.textContent = msg;
