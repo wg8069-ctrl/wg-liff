@@ -155,13 +155,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="card">
     <div class="card-title">訂單數量</div>
     <div class="g4" id="qty-g">
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">200</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">500</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">1000</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">1200</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">2000</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">3000</button>
-      <button class="rb" onclick="pickR(this,'qty-g','qty')">5000</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">1</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">2</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">3</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">4</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">5</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">6</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">7</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">8</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">9</button>
+      <button class="rb" onclick="pickR(this,'qty-g','qty')">0</button>
       <button class="rb" id="qty-other" onclick="showQtyInput()">其他</button>
     </div>
     <input class="tinput" id="qty-in" placeholder="輸入數量" style="display:none;margin-top:8px;" type="number" oninput="D.qty=this.value;chk3()">
@@ -172,9 +175,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div class="ratio-col">
         <div class="ratio-label">抽驗數</div>
         <div class="g4" id="samp-g">
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">3</button>
           <button class="rb" onclick="pickR(this,'samp-g','samp')">5</button>
           <button class="rb" onclick="pickR(this,'samp-g','samp')">10</button>
+          <button class="rb" onclick="pickR(this,'samp-g','samp')">15</button>
           <button class="rb" onclick="pickR(this,'samp-g','samp')">20</button>
           <button class="rb" onclick="pickR(this,'samp-g','samp')">50</button>
           <button class="rb" onclick="pickR(this,'samp-g','samp')">100</button>
@@ -186,13 +189,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div class="ratio-col">
         <div class="ratio-label">不良數</div>
         <div class="g4" id="bad-g">
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">1</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">2</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">3</button>
           <button class="rb" onclick="pickR(this,'bad-g','bad')">5</button>
           <button class="rb" onclick="pickR(this,'bad-g','bad')">10</button>
+          <button class="rb" onclick="pickR(this,'bad-g','bad')">15</button>
           <button class="rb" onclick="pickR(this,'bad-g','bad')">20</button>
           <button class="rb" onclick="pickR(this,'bad-g','bad')">50</button>
+          <button class="rb" onclick="pickR(this,'bad-g','bad')">100</button>
+          <button class="rb" onclick="pickR(this,'bad-g','bad')">200</button>
           <button class="rb" onclick="pickR(this,'bad-g','bad')">全</button>
         </div>
       </div>
