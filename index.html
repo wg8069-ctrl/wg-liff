@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>偉剛異常通報V2</title>
+<title>偉剛異常通報</title>
 <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -267,8 +267,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <script>
 // ========== 設定區 ==========
 // 部署後把這個換成你的 Render API 網址
-var API_URL = 'https://winqc.onrender.com';
-var LIFF_ID = '2009600334-UpN6esDu';
+var API_URL = 'https://YOUR-APP.onrender.com';
+var LIFF_ID = 'YOUR_LIFF_ID';
 // ============================
 
 var D = {unit:'',resp:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,judge:''};
@@ -424,24 +424,17 @@ function judgeBtn(btn, val, cls){
   document.getElementById('n5').disabled = false;
 }
 
-function genNum(){
-  var t = new Date();
-  return 'CB26-'+(t.getMonth()+1).toString().padStart(2,'0')+t.getDate().toString().padStart(2,'0')+'-'+(Math.floor(Math.random()*900)+100);
-}
-
 function buildSummary(){
   var t = new Date();
   var d = t.getFullYear()+'/'+(t.getMonth()+1).toString().padStart(2,'0')+'/'+t.getDate().toString().padStart(2,'0');
-  D._num = genNum(); D._date = d;
-  var jhtml = D.judge==='驗退'?'<span class="tag tg-red">驗退</span>':D.judge==='特採'?'<span class="tag tg-amber">特採</span>':'<span class="tag tg-green">加工</span>';
+  D._date = d;
+  var jhtml = D.judge==='驗退X'?'<span class="tag tg-red">驗退 X</span>':D.judge==='特採△'?'<span class="tag tg-amber">特採 △</span>':'<span class="tag tg-green">加工 ○</span>';
   var phtml = D.photo?'<span style="color:#006600">已附照片 ✓</span>':'<span style="color:#aaa">未附照片</span>';
   document.getElementById('stbl').innerHTML =
-    row('單號',D._num)+row('日期',d)+row('發生單位',D.unit)+row('責任單位',D.resp)+
-    row('品名',D.prod)+row('異常狀況',D.anom.join('、'))+
+    row('單號','<span style="color:#aaa">送出後自動產生</span>')+row('日期',d)+row('發生單位',D.unit)+row('責任單位',D.resp)+
+    row('品名',D.prod||'(未填)')+row('異常狀況',D.anom.join('、'))+
     row('訂單數量',D.qty)+row('不良比例',D.samp+' / '+D.bad)+
     row('品質判定',jhtml)+row('照片',phtml);
-}
-
 function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
 
 function showErr(msg){
