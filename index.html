@@ -274,8 +274,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <script>
 // ========== 設定區 ==========
 // 部署後把這個換成你的 Render API 網址
-var API_URL = 'https://winqc.onrender.com';
-var LIFF_ID = '2009600334-UpN6esDu';
+var API_URL = 'https://YOUR-APP.onrender.com';
+var LIFF_ID = 'YOUR_LIFF_ID';
 // ============================
 
 var D = {unit:'',resp:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:''};
@@ -288,6 +288,8 @@ var recentResps = JSON.parse(localStorage.getItem('recentResps')||'[]');
 liff.init({liffId: LIFF_ID}).then(function(){
   if(liff.isLoggedIn()){
     liff.getProfile().then(function(p){ userId = p.userId; });
+  } else {
+    liff.login();
   }
 }).catch(function(){ console.log('LIFF init failed, running in browser mode'); });
 
