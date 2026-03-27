@@ -96,11 +96,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="card">
     <div class="card-title">發生單位</div>
     <div class="g2" id="unit-g">
-      <button class="sb" onclick="pick(this,'unit-g','unit')">🏭 本廠</button>
-      <button class="sb" onclick="pick(this,'unit-g','unit')">🏭 二廠</button>
-      <button class="sb" onclick="pick(this,'unit-g','unit')">🔍 品保</button>
-      <button class="sb" onclick="pick(this,'unit-g','unit')">📦 倉管收料</button>
-      <button class="sb" onclick="pick(this,'unit-g','unit')">🚚 外包</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">本廠</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">二廠</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">品保</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">資管</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">外發</button>
       <button class="sb" onclick="pickOther(this,'unit-g','unit','unit-other-in')">✏️ 其他</button>
     </div>
     <input class="tinput" id="unit-other-in" placeholder="請輸入發生單位" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
@@ -315,7 +315,13 @@ function pickUnitRecent(v){
   document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
   document.getElementById('unit-other-in').style.display='none';
   D.unit=v; chk1();
-  renderUnitRecent();
+  // 視覺回饋：把對應的 rbtn 標成選中
+  document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = b.textContent===v ? '#e8ffe8' : '#f9f9f9';
+    b.style.borderColor = b.textContent===v ? '#00b900' : '#ddd';
+    b.style.color = b.textContent===v ? '#006600' : '#555';
+    b.style.fontWeight = b.textContent===v ? '600' : '400';
+  });
 }
 
 function renderRespRecent(){
@@ -336,6 +342,12 @@ function pickRespRecent(v){
   document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
   document.getElementById('resp-other-in').style.display='none';
   D.resp=v; chk1();
+  document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = b.textContent===v ? '#e8ffe8' : '#f9f9f9';
+    b.style.borderColor = b.textContent===v ? '#00b900' : '#ddd';
+    b.style.color = b.textContent===v ? '#006600' : '#555';
+    b.style.fontWeight = b.textContent===v ? '600' : '400';
+  });
 }
 
 function renderRecent(){
