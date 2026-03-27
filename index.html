@@ -435,7 +435,7 @@ function buildSummary(){
     row('品名',D.prod||'(未填)')+row('異常狀況',D.anom.join('、'))+
     row('訂單數量',D.qty)+row('不良比例',D.samp+' / '+D.bad)+
     row('品質判定',jhtml)+row('照片',phtml);
-function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
+}
 
 function showErr(msg){
   var e = document.getElementById('errmsg');
