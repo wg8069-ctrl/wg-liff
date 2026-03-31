@@ -252,6 +252,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'加工○','on')">🔧<br><br>加工 ○</button>
     </div>
   </div>
+  <div class="card">
+    <div class="card-title">需求回覆時間 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
+    <input type="date" class="tinput" id="reply-date-in"
+      oninput="D.replyDate=this.value"
+      style="font-size:16px;">
+    <div class="hint">廠商需回覆的期限日期</div>
+  </div>
   <div class="nav">
     <button class="btn-back" onclick="go(4)">← 返回</button>
     <button class="btn-next" id="n5" onclick="go(6)" disabled>下一步 →</button>
@@ -286,7 +293,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
-var D = {unit:'',resp:'',series:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:''};
+var D = {unit:'',resp:'',series:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',replyDate:''};
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds')||'["WC4-795B-CR","WC4-800A","CB26-001"]');
@@ -395,7 +402,6 @@ function pick(btn, gridId, key){
 function autoSeries(val){
   var v = val.trim();
   if(v === '') { D.series = ''; chk2(); return; }
-  // 已包含「系列」或「共用」就不加
   if(v.includes('系列') || v.includes('共用')){
     D.series = v;
   } else {
@@ -500,11 +506,6 @@ function qtyPreset(v){
   chk3();
 }
 
-function showQtyInput(){
-  document.getElementById('qty-in').style.display = 'block';
-  document.getElementById('qty-in').focus();
-}
-
 function updateRatio(){
   var r = document.getElementById('ratio-res');
   if(D.samp && D.bad){
@@ -556,7 +557,8 @@ function buildSummary(){
     row('訂單數量',D.qty)+
     row('不良比例',D.samp+' / '+D.bad)+
     row('品質判定',jhtml)+
-    row('照片',phtml);
+    row('照片',phtml)+
+    row('回覆期限',D.replyDate||'(未填)');
 }
 
 function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
@@ -605,6 +607,7 @@ function submitForm(){
     qty: D.qty,
     ratio: D.samp + ' / ' + D.bad,
     judge: D.judge,
+    replyDate: D.replyDate,
     photoData: D.photoData,
     photoData2: D.photoData2,
     userId: userId
@@ -625,7 +628,8 @@ function submitForm(){
         '<b>品名：</b>' + (D.prod || '(未填)') + '<br>' +
         '<b>異常：</b>' + D.anom.join('、') + '<br>' +
         '<b>比例：</b>' + D.samp + ' / ' + D.bad + '<br>' +
-        '<b>判定：</b>' + D.judge;
+        '<b>判定：</b>' + D.judge +
+        (D.replyDate ? '<br><b>回覆期限：</b>' + D.replyDate : '');
     } else {
       showErr('送出失敗：' + (res.error||'請重試'));
       btn.disabled = false;
