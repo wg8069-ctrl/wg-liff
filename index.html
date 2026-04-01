@@ -186,21 +186,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="card-title">不良比例</div>
     <div class="ratio-wrap">
       <div class="ratio-col">
-        <div class="ratio-label">抽驗數</div>
-        <input class="tinput" id="samp-in" type="number" inputmode="numeric" placeholder="輸入數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="updateSamp(this.value)">
-        <div class="g4">
-          <button class="rb" onclick="setSamp('全')">全</button>
-          <button class="rb" onclick="setSamp('5')">5</button>
-          <button class="rb" onclick="setSamp('10')">10</button>
-          <button class="rb" onclick="setSamp('20')">20</button>
-          <button class="rb" onclick="setSamp('50')">50</button>
-          <button class="rb" onclick="setSamp('100')">100</button>
-          <button class="rb" onclick="setSamp('200')">200</button>
-          <button class="rb" onclick="setSamp('500')">500</button>
-        </div>
-      </div>
-      <div class="ratio-div">/</div>
-      <div class="ratio-col">
         <div class="ratio-label">不良數</div>
         <input class="tinput" id="bad-in" type="number" inputmode="numeric" placeholder="輸入數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="updateBad(this.value)">
         <div class="g4">
@@ -212,6 +197,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
           <button class="rb" onclick="setBad('100')">100</button>
           <button class="rb" onclick="setBad('200')">200</button>
           <button class="rb" onclick="setBad('500')">500</button>
+        </div>
+      </div>
+      <div class="ratio-div">/</div>
+      <div class="ratio-col">
+        <div class="ratio-label">抽驗數</div>
+        <input class="tinput" id="samp-in" type="number" inputmode="numeric" placeholder="輸入數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="updateSamp(this.value)">
+        <div class="g4">
+          <button class="rb" onclick="setSamp('全')">全</button>
+          <button class="rb" onclick="setSamp('5')">5</button>
+          <button class="rb" onclick="setSamp('10')">10</button>
+          <button class="rb" onclick="setSamp('20')">20</button>
+          <button class="rb" onclick="setSamp('50')">50</button>
+          <button class="rb" onclick="setSamp('100')">100</button>
+          <button class="rb" onclick="setSamp('200')">200</button>
+          <button class="rb" onclick="setSamp('500')">500</button>
         </div>
       </div>
     </div>
@@ -261,14 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   </div>
   <div class="card">
     <div class="card-title">目前處理狀態 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
-    <div class="g2" id="status-g">
-      <button class="sb" onclick="pickStatus(this,'未開始')">未開始</button>
-      <button class="sb" onclick="pickStatus(this,'處理中')">處理中</button>
-      <button class="sb" onclick="pickStatus(this,'已完成')">已完成</button>
-      <button class="sb" onclick="pickStatus(this,'待確認')">待確認</button>
-    </div>
-    <input class="tinput" id="status-other-in" placeholder="自行輸入處理狀態" style="display:none;margin-top:8px;" oninput="D.status=this.value.trim()">
-    <button class="sb" style="margin-top:8px;width:100%;" onclick="pickStatusOther(this)">✏️ 自行輸入</button>
+    <input class="tinput" id="status-other-in" placeholder="自行輸入處理狀態" oninput="D.status=this.value.trim()">
   </div>
   <div class="card">
     <div class="card-title">需求回覆時間 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
