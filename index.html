@@ -85,6 +85,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 
 <!-- Step 1 -->
 <div class="step active" id="s1">
+  <div id="copy-last-wrap" style="display:none;margin:12px 12px 0;">
+    <button onclick="copyLast()" style="width:100%;padding:12px;background:#fff;border:1.5px dashed #00b900;border-radius:12px;color:#006600;font-size:14px;cursor:pointer;">
+      📋 複製上一筆資料
+    </button>
+  </div>
   <div class="card">
     <div class="card-title">發生單位</div>
     <div class="g2" id="unit-g">
@@ -105,6 +110,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="card-title">責任單位</div>
     <div class="g2" id="resp-g">
       <button class="sb" onclick="pick(this,'resp-g','resp')">偉剛</button>
+      <button class="sb" onclick="pick(this,'resp-g','resp')">待確認</button>
       <button class="sb" onclick="pickOther(this,'resp-g','resp','resp-other-in')">✏️ 其他</button>
     </div>
     <input class="tinput" id="resp-other-in" placeholder="請輸入責任單位" style="display:none;margin-top:8px;" oninput="D.resp=this.value.trim();chk1()">
@@ -141,8 +147,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="anom-other-in" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
   </div>
   <div class="card">
-    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
-    <input class="tinput" id="prod-in" placeholder="例：WC4-795B-CR" oninput="D.prod=this.value.trim();chk2()">
+    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400">（可略過）</span></div>
+    <input class="tinput" id="prod-in" placeholder="例：WC4-795B-CR（可略過）" oninput="D.prod=this.value.trim();chk2()">
     <div class="recent" id="recent-list"></div>
     <div class="hint">最近使用品名，點一下帶入</div>
   </div>
@@ -182,29 +188,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="ratio-wrap">
       <div class="ratio-col">
         <div class="ratio-label">抽驗數</div>
-        <div class="g4" id="samp-g">
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">5</button>
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">10</button>
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">15</button>
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">20</button>
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">50</button>
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">100</button>
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">200</button>
-          <button class="rb" onclick="pickR(this,'samp-g','samp')">全</button>
+        <input class="tinput" id="samp-in" type="number" inputmode="numeric" placeholder="輸入數字或「全」" style="font-size:20px;text-align:center;" oninput="updateSamp(this.value)">
+        <div class="g4" style="margin-top:6px;">
+          <button class="rb" onclick="setSamp('全')">全</button>
+          <button class="rb" onclick="setSamp('5')">5</button>
+          <button class="rb" onclick="setSamp('10')">10</button>
+          <button class="rb" onclick="setSamp('20')">20</button>
+          <button class="rb" onclick="setSamp('50')">50</button>
+          <button class="rb" onclick="setSamp('100')">100</button>
+          <button class="rb" onclick="setSamp('200')">200</button>
+          <button class="rb" onclick="setSamp('500')">500</button>
         </div>
       </div>
       <div class="ratio-div">/</div>
       <div class="ratio-col">
         <div class="ratio-label">不良數</div>
-        <div class="g4" id="bad-g">
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">5</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">10</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">15</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">20</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">50</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">100</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">200</button>
-          <button class="rb" onclick="pickR(this,'bad-g','bad')">全</button>
+        <input class="tinput" id="bad-in" type="number" inputmode="numeric" placeholder="輸入數字或「全」" style="font-size:20px;text-align:center;" oninput="updateBad(this.value)">
+        <div class="g4" style="margin-top:6px;">
+          <button class="rb" onclick="setBad('全')">全</button>
+          <button class="rb" onclick="setBad('5')">5</button>
+          <button class="rb" onclick="setBad('10')">10</button>
+          <button class="rb" onclick="setBad('20')">20</button>
+          <button class="rb" onclick="setBad('50')">50</button>
+          <button class="rb" onclick="setBad('100')">100</button>
+          <button class="rb" onclick="setBad('200')">200</button>
+          <button class="rb" onclick="setBad('500')">500</button>
         </div>
       </div>
     </div>
@@ -245,7 +253,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 5 -->
 <div class="step" id="s5">
   <div class="card">
-    <div class="card-title">品質判定</div>
+    <div class="card-title">品質判定 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
     <div class="g3" id="judge-g">
       <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'驗退X','on-red')">❌<br><br>驗退 X</button>
       <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'特採△','on-amber')">⚠️<br><br>特採 △</button>
@@ -253,15 +261,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     </div>
   </div>
   <div class="card">
+    <div class="card-title">目前處理狀態 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
+    <div class="g2" id="status-g">
+      <button class="sb" onclick="pickStatus(this,'未開始')">未開始</button>
+      <button class="sb" onclick="pickStatus(this,'處理中')">處理中</button>
+      <button class="sb" onclick="pickStatus(this,'已完成')">已完成</button>
+      <button class="sb" onclick="pickStatus(this,'待確認')">待確認</button>
+    </div>
+    <input class="tinput" id="status-other-in" placeholder="自行輸入處理狀態" style="display:none;margin-top:8px;" oninput="D.status=this.value.trim()">
+    <button class="sb" style="margin-top:8px;width:100%;" onclick="pickStatusOther(this)">✏️ 自行輸入</button>
+  </div>
+  <div class="card">
     <div class="card-title">需求回覆時間 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
     <input type="date" class="tinput" id="reply-date-in"
-      oninput="D.replyDate=this.value"
+      oninput="D.replyDate=this.value;document.getElementById('reply-online-btn').className='sb';"
       style="font-size:16px;">
-    <div class="hint">品保需回覆的期限日期</div>
+    <button class="sb" id="reply-online-btn" style="margin-top:8px;width:100%;font-size:14px;" onclick="setReplyOnline(this)">🔄 上線中（不指定日期）</button>
+    <div class="hint">廠商需回覆的期限日期，或選「上線中」</div>
   </div>
   <div class="nav">
     <button class="btn-back" onclick="go(4)">← 返回</button>
-    <button class="btn-next" id="n5" onclick="go(6)" disabled>下一步 →</button>
+    <button class="btn-next" id="n5" onclick="go(6)">下一步 →</button>
   </div>
 </div>
 
@@ -293,7 +313,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
-var D = {unit:'',resp:'',series:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',replyDate:''};
+var D = {unit:'',resp:'',series:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',status:'',replyDate:''};
+var lastD = JSON.parse(localStorage.getItem('lastD') || 'null');
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds')||'["WC4-795B-CR","WC4-800A","CB26-001"]');
@@ -311,6 +332,43 @@ liff.init({liffId: LIFF_ID}).then(function(){
 renderRecent();
 renderUnitRecent();
 renderRespRecent();
+
+// 顯示「複製上一筆」按鈕
+if(lastD){ document.getElementById('copy-last-wrap').style.display='block'; }
+
+function copyLast(){
+  if(!lastD) return;
+  // 複製基本資料
+  D.unit = lastD.unit || '';
+  D.resp = lastD.resp || '';
+  D.series = lastD.series || '';
+  D.anom = (lastD.anom || []).slice();
+  D.prod = lastD.prod || '';
+  D.judge = lastD.judge || '';
+  D.status = lastD.status || '';
+  D.replyDate = lastD.replyDate || '';
+
+  // 更新 unit 畫面
+  if(D.unit){
+    document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
+      if(b.textContent.trim() === D.unit){ b.classList.add('on'); }
+    });
+    var found = Array.from(document.getElementById('unit-g').querySelectorAll('.sb')).some(function(b){ return b.classList.contains('on'); });
+    if(!found){
+      document.getElementById('unit-other-in').style.display='block';
+      document.getElementById('unit-other-in').value = D.unit;
+    }
+  }
+  // 更新 resp 畫面
+  if(D.resp){
+    document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
+      if(b.textContent.trim() === D.resp){ b.classList.add('on'); }
+    });
+  }
+  chk1();
+  alert('已複製上一筆資料！
+單位：' + D.unit + '\n責任：' + D.resp + '\n系列：' + D.series);
+}
 
 function renderUnitRecent(){
   var el = document.getElementById('unit-recent-list');
@@ -483,6 +541,25 @@ function pickR(btn, gridId, key){
   updateRatio();
 }
 
+function setSamp(v){
+  D.samp = v;
+  document.getElementById('samp-in').value = v;
+  updateRatio();
+}
+function setBad(v){
+  D.bad = v;
+  document.getElementById('bad-in').value = v;
+  updateRatio();
+}
+function updateSamp(v){
+  D.samp = v.trim() || '';
+  updateRatio();
+}
+function updateBad(v){
+  D.bad = v.trim() || '';
+  updateRatio();
+}
+
 function qtyKey(k){
   if(D.qty==='0') D.qty='';
   if(D.qty.length >= 6) return;
@@ -510,7 +587,9 @@ function updateRatio(){
   var r = document.getElementById('ratio-res');
   if(D.samp && D.bad){
     r.style.display = 'block';
-    r.textContent = '不良比例：' + D.samp + ' / ' + D.bad;
+    r.textContent = '不良比例：' + D.bad + ' / ' + D.samp;
+  } else {
+    r.style.display = 'none';
   }
   chk3();
 }
@@ -537,7 +616,28 @@ function judgeBtn(btn, val, cls){
   document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px'; });
   btn.classList.add(cls);
   D.judge = val;
-  document.getElementById('n5').disabled = false;
+}
+
+function pickStatus(btn, val){
+  document.getElementById('status-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  btn.classList.add('on');
+  D.status = val;
+  document.getElementById('status-other-in').style.display='none';
+}
+
+function pickStatusOther(btn){
+  document.getElementById('status-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  btn.classList.add('on');
+  D.status = '';
+  var inp = document.getElementById('status-other-in');
+  inp.style.display = 'block';
+  inp.focus();
+}
+
+function setReplyOnline(btn){
+  D.replyDate = '上線中';
+  document.getElementById('reply-date-in').value = '';
+  btn.className = 'sb on';
 }
 
 function buildSummary(){
@@ -555,10 +655,11 @@ function buildSummary(){
     row('品名',D.prod||'(未填)')+
     row('異常狀況',D.anom.join('、'))+
     row('訂單數量',D.qty)+
-    row('不良比例',D.samp+' / '+D.bad)+
+    row('不良比例',D.bad+' / '+D.samp)+
     row('品質判定',jhtml)+
     row('照片',phtml)+
-    row('回覆期限',D.replyDate||'(未填)');
+    row('回覆期限',D.replyDate||'(未填)')+
+    row('處理狀態',D.status||'(未填)');
 }
 
 function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
@@ -605,9 +706,10 @@ function submitForm(){
     product: D.prod,
     anomaly: D.anom.join('、'),
     qty: D.qty,
-    ratio: D.samp + ' / ' + D.bad,
+    ratio: D.bad + ' / ' + D.samp,
     judge: D.judge,
     replyDate: D.replyDate,
+    status: D.status,
     photoData: D.photoData,
     photoData2: D.photoData2,
     userId: userId
