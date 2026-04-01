@@ -125,12 +125,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <div class="step" id="s2">
   <div class="card">
     <div class="card-title">系列別</div>
-    <div class="g2" id="series-g">
-      <button class="sb" onclick="pickSeries(this,'1 系列')">1 系列</button>
-      <button class="sb" onclick="pickSeries(this,'2 系列')">2 系列</button>
-      <button class="sb" onclick="pickOther(this,'series-g','series','series-other-in')">✏️ 其他</button>
+    <input class="tinput" id="series-other-in" placeholder="輸入數字，例如：1、2、3" oninput="autoSeries(this.value)">
+    <div class="hint">輸入數字後自動加上「系列」</div>
+  </div>
+  <div class="card">
+    <div class="card-title">單號 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="prefix-g">
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'221-')">221-</button>
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'222-')">222-</button>
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'5101-')">5101-</button>
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'5102-')">5102-</button>
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'331-')">331-</button>
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'331A-')">331A-</button>
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'510A-')">510A-</button>
+      <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'510B-')">510B-</button>
     </div>
-    <input class="tinput" id="series-other-in" placeholder="輸入數字，例如：3" style="display:none;margin-top:8px;" oninput="autoSeries(this.value)">
+    <input class="tinput" id="order-in" placeholder="輸入後面的號碼" oninput="updateOrderNo()">
+    <div id="order-preview" style="background:#f0fff0;border:1px solid #00b900;border-radius:8px;padding:8px 12px;font-size:15px;color:#006600;font-weight:600;margin-top:6px;display:none;"></div>
   </div>
   <div class="card">
     <div class="card-title">異常狀況（可多選）</div>
@@ -303,7 +314,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
-var D = {unit:'',resp:'',series:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',status:'',replyDate:''};
+var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',status:'',replyDate:''};
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
@@ -494,7 +505,7 @@ function setProd(v){ document.getElementById('prod-in').value=v; D.prod=v; chk2(
 
 function chk2(){
   D.prod=document.getElementById('prod-in').value.trim();
-  document.getElementById('n2').disabled=!(D.anom.length>0&&D.series);
+  document.getElementById('n2').disabled=!(D.anom.length>0);
 }
 
 function qtyKey(k){
@@ -506,6 +517,32 @@ function qtyKey(k){
 function qtyBackspace(){ D.qty=D.qty.slice(0,-1); document.getElementById('qty-display').textContent=D.qty||'—'; chk3(); }
 function qtyClear(){ D.qty=''; document.getElementById('qty-display').textContent='—'; chk3(); }
 function qtyPreset(v){ D.qty=String(v); document.getElementById('qty-display').textContent=D.qty; chk3(); }
+
+function setPrefix(btn, prefix){
+  var isOn = btn.classList.contains('on');
+  document.getElementById('prefix-g').querySelectorAll('.rb').forEach(function(b){ b.classList.remove('on'); });
+  if(isOn){
+    D._prefix = '';
+  } else {
+    btn.classList.add('on');
+    D._prefix = prefix;
+  }
+  updateOrderNo();
+}
+
+function updateOrderNo(){
+  var suffix = document.getElementById('order-in').value.trim();
+  var prefix = D._prefix || '';
+  if(prefix || suffix){
+    D.orderNo = prefix + suffix;
+    var preview = document.getElementById('order-preview');
+    preview.style.display = 'block';
+    preview.textContent = '單號：' + D.orderNo;
+  } else {
+    D.orderNo = '';
+    document.getElementById('order-preview').style.display = 'none';
+  }
+}
 
 function setSamp(v){ D.samp=v; document.getElementById('samp-in').value=v; updateRatio(); }
 function setBad(v){ D.bad=v; document.getElementById('bad-in').value=v; updateRatio(); }
@@ -588,6 +625,7 @@ function buildSummary(){
     row('責任單位',D.resp)+
     row('系列別',D.series)+
     row('品名',D.prod||'(未填)')+
+    row('客戶訂單編號',D.orderNo||'(未填)')+
     row('異常狀況',D.anom.join('、'))+
     row('訂單數量',D.qty)+
     row('不良比例',D.bad+' / '+D.samp)+
@@ -619,7 +657,7 @@ function submitForm(){
 
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
-    product:D.prod, anomaly:D.anom.join('、'),
+    product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
     qty:D.qty, ratio:D.bad+' / '+D.samp,
     judge:D.judge, status:D.status, replyDate:D.replyDate,
     photoData:D.photoData, photoData2:D.photoData2, userId:userId
