@@ -50,7 +50,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .ratio-wrap{display:flex;gap:10px;align-items:flex-start;}
 .ratio-col{flex:1;}
 .ratio-label{font-size:12px;color:#888;margin-bottom:6px;font-weight:600;}
-.ratio-div{font-size:28px;color:#bbb;padding-top:24px;}
+.ratio-div{font-size:28px;color:#bbb;padding-top:12px;}
 .stbl{width:100%;font-size:14px;border-collapse:collapse;}
 .stbl td{padding:8px 0;border-bottom:0.5px solid #f0f0f0;vertical-align:top;}
 .stbl .lb{color:#888;width:85px;font-size:13px;}
@@ -66,6 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .done .ds{font-size:14px;color:#888;}
 .nbox{background:#f0fff0;border:1px solid #c8ecc8;border-radius:12px;padding:14px;margin-top:20px;font-size:14px;color:#444;text-align:left;line-height:1.8;}
 .err{background:#ffeaea;border:1px solid #e24b4a;border-radius:10px;padding:12px;margin:12px;font-size:14px;color:#a32d2d;display:none;}
+.copy-btn{width:100%;padding:12px;background:#fff;border:1.5px dashed #00b900;border-radius:12px;color:#006600;font-size:14px;cursor:pointer;margin:12px 0 0;-webkit-tap-highlight-color:transparent;}
 </style>
 </head>
 <body>
@@ -86,9 +87,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 1 -->
 <div class="step active" id="s1">
   <div id="copy-last-wrap" style="display:none;margin:12px 12px 0;">
-    <button onclick="copyLast()" style="width:100%;padding:12px;background:#fff;border:1.5px dashed #00b900;border-radius:12px;color:#006600;font-size:14px;cursor:pointer;">
-      📋 複製上一筆資料
-    </button>
+    <button class="copy-btn" onclick="copyLast()">📋 複製上一筆資料</button>
   </div>
   <div class="card">
     <div class="card-title">發生單位</div>
@@ -188,8 +187,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="ratio-wrap">
       <div class="ratio-col">
         <div class="ratio-label">抽驗數</div>
-        <input class="tinput" id="samp-in" type="number" inputmode="numeric" placeholder="輸入數字或「全」" style="font-size:20px;text-align:center;" oninput="updateSamp(this.value)">
-        <div class="g4" style="margin-top:6px;">
+        <input class="tinput" id="samp-in" type="number" inputmode="numeric" placeholder="輸入數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="updateSamp(this.value)">
+        <div class="g4">
           <button class="rb" onclick="setSamp('全')">全</button>
           <button class="rb" onclick="setSamp('5')">5</button>
           <button class="rb" onclick="setSamp('10')">10</button>
@@ -203,8 +202,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div class="ratio-div">/</div>
       <div class="ratio-col">
         <div class="ratio-label">不良數</div>
-        <input class="tinput" id="bad-in" type="number" inputmode="numeric" placeholder="輸入數字或「全」" style="font-size:20px;text-align:center;" oninput="updateBad(this.value)">
-        <div class="g4" style="margin-top:6px;">
+        <input class="tinput" id="bad-in" type="number" inputmode="numeric" placeholder="輸入數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="updateBad(this.value)">
+        <div class="g4">
           <button class="rb" onclick="setBad('全')">全</button>
           <button class="rb" onclick="setBad('5')">5</button>
           <button class="rb" onclick="setBad('10')">10</button>
@@ -273,9 +272,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   </div>
   <div class="card">
     <div class="card-title">需求回覆時間 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
-    <input type="date" class="tinput" id="reply-date-in"
-      oninput="D.replyDate=this.value;document.getElementById('reply-online-btn').className='sb';"
-      style="font-size:16px;">
+    <input type="date" class="tinput" id="reply-date-in" oninput="D.replyDate=this.value;document.getElementById('reply-online-btn').className='sb';" style="font-size:16px;">
     <button class="sb" id="reply-online-btn" style="margin-top:8px;width:100%;font-size:14px;" onclick="setReplyOnline(this)">🔄 上線中（不指定日期）</button>
     <div class="hint">廠商需回覆的期限日期，或選「上線中」</div>
   </div>
@@ -314,73 +311,32 @@ var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
 var D = {unit:'',resp:'',series:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',status:'',replyDate:''};
-var lastD = JSON.parse(localStorage.getItem('lastD') || 'null');
 var cur = 1;
 var userId = '';
-var recentProds = JSON.parse(localStorage.getItem('recentProds')||'["WC4-795B-CR","WC4-800A","CB26-001"]');
-var recentUnits = JSON.parse(localStorage.getItem('recentUnits')||'[]');
-var recentResps = JSON.parse(localStorage.getItem('recentResps')||'[]');
+var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
+var recentUnits = JSON.parse(localStorage.getItem('recentUnits') || '[]');
+var recentResps = JSON.parse(localStorage.getItem('recentResps') || '[]');
+var lastD = JSON.parse(localStorage.getItem('lastD') || 'null');
 
 liff.init({liffId: LIFF_ID}).then(function(){
   if(liff.isLoggedIn()){
     liff.getProfile().then(function(p){ userId = p.userId; });
-  } else {
-    liff.login();
-  }
-}).catch(function(){ console.log('LIFF init failed, running in browser mode'); });
+  } else { liff.login(); }
+}).catch(function(){ console.log('LIFF init failed'); });
 
 renderRecent();
 renderUnitRecent();
 renderRespRecent();
-
-// 顯示「複製上一筆」按鈕
-if(lastD){ document.getElementById('copy-last-wrap').style.display='block'; }
-
-function copyLast(){
-  if(!lastD) return;
-  // 複製基本資料
-  D.unit = lastD.unit || '';
-  D.resp = lastD.resp || '';
-  D.series = lastD.series || '';
-  D.anom = (lastD.anom || []).slice();
-  D.prod = lastD.prod || '';
-  D.judge = lastD.judge || '';
-  D.status = lastD.status || '';
-  D.replyDate = lastD.replyDate || '';
-
-  // 更新 unit 畫面
-  if(D.unit){
-    document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
-      if(b.textContent.trim() === D.unit){ b.classList.add('on'); }
-    });
-    var found = Array.from(document.getElementById('unit-g').querySelectorAll('.sb')).some(function(b){ return b.classList.contains('on'); });
-    if(!found){
-      document.getElementById('unit-other-in').style.display='block';
-      document.getElementById('unit-other-in').value = D.unit;
-    }
-  }
-  // 更新 resp 畫面
-  if(D.resp){
-    document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
-      if(b.textContent.trim() === D.resp){ b.classList.add('on'); }
-    });
-  }
-  chk1();
-  alert('已複製上一筆資料！
-單位：' + D.unit + '\n責任：' + D.resp + '\n系列：' + D.series);
-}
+if(lastD){ document.getElementById('copy-last-wrap').style.display = 'block'; }
 
 function renderUnitRecent(){
   var el = document.getElementById('unit-recent-list');
   var hint = document.getElementById('unit-recent-hint');
   if(!recentUnits.length){ el.innerHTML=''; hint.style.display='none'; return; }
-  hint.style.display='block';
-  el.innerHTML='';
+  hint.style.display='block'; el.innerHTML='';
   recentUnits.slice(0,5).forEach(function(v){
-    var b=document.createElement('button');
-    b.className='rbtn'; b.textContent=v;
-    b.onclick=function(){ pickUnitRecent(v); };
-    el.appendChild(b);
+    var b=document.createElement('button'); b.className='rbtn'; b.textContent=v;
+    b.onclick=function(){ pickUnitRecent(v); }; el.appendChild(b);
   });
 }
 
@@ -389,10 +345,10 @@ function pickUnitRecent(v){
   document.getElementById('unit-other-in').style.display='none';
   D.unit=v; chk1();
   document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
-    b.style.background = b.textContent===v ? '#e8ffe8' : '#f9f9f9';
-    b.style.borderColor = b.textContent===v ? '#00b900' : '#ddd';
-    b.style.color = b.textContent===v ? '#006600' : '#555';
-    b.style.fontWeight = b.textContent===v ? '600' : '400';
+    b.style.background=b.textContent===v?'#e8ffe8':'#f9f9f9';
+    b.style.borderColor=b.textContent===v?'#00b900':'#ddd';
+    b.style.color=b.textContent===v?'#006600':'#555';
+    b.style.fontWeight=b.textContent===v?'600':'400';
   });
 }
 
@@ -400,13 +356,10 @@ function renderRespRecent(){
   var el = document.getElementById('resp-recent-list');
   var hint = document.getElementById('resp-recent-hint');
   if(!recentResps.length){ el.innerHTML=''; hint.style.display='none'; return; }
-  hint.style.display='block';
-  el.innerHTML='';
+  hint.style.display='block'; el.innerHTML='';
   recentResps.slice(0,5).forEach(function(v){
-    var b=document.createElement('button');
-    b.className='rbtn'; b.textContent=v;
-    b.onclick=function(){ pickRespRecent(v); };
-    el.appendChild(b);
+    var b=document.createElement('button'); b.className='rbtn'; b.textContent=v;
+    b.onclick=function(){ pickRespRecent(v); }; el.appendChild(b);
   });
 }
 
@@ -415,33 +368,50 @@ function pickRespRecent(v){
   document.getElementById('resp-other-in').style.display='none';
   D.resp=v; chk1();
   document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
-    b.style.background = b.textContent===v ? '#e8ffe8' : '#f9f9f9';
-    b.style.borderColor = b.textContent===v ? '#00b900' : '#ddd';
-    b.style.color = b.textContent===v ? '#006600' : '#555';
-    b.style.fontWeight = b.textContent===v ? '600' : '400';
+    b.style.background=b.textContent===v?'#e8ffe8':'#f9f9f9';
+    b.style.borderColor=b.textContent===v?'#00b900':'#ddd';
+    b.style.color=b.textContent===v?'#006600':'#555';
+    b.style.fontWeight=b.textContent===v?'600':'400';
   });
 }
 
 function renderRecent(){
-  var el = document.getElementById('recent-list');
-  el.innerHTML = '';
+  var el = document.getElementById('recent-list'); el.innerHTML='';
   recentProds.slice(0,5).forEach(function(p){
-    var b = document.createElement('button');
-    b.className = 'rbtn';
-    b.textContent = p;
-    b.onclick = function(){ setProd(p); };
-    el.appendChild(b);
+    var b=document.createElement('button'); b.className='rbtn'; b.textContent=p;
+    b.onclick=function(){ setProd(p); }; el.appendChild(b);
   });
+}
+
+function copyLast(){
+  if(!lastD) return;
+  D.unit=lastD.unit||''; D.resp=lastD.resp||''; D.series=lastD.series||'';
+  D.anom=(lastD.anom||[]).slice(); D.prod=lastD.prod||'';
+  D.judge=lastD.judge||''; D.status=lastD.status||''; D.replyDate=lastD.replyDate||'';
+  // 更新畫面
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim()===D.unit){ b.classList.add('on'); }
+  });
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim()===D.resp){ b.classList.add('on'); }
+  });
+  if(D.series){
+    document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
+      if(b.textContent.trim()===D.series){ b.classList.add('on'); }
+    });
+  }
+  if(D.prod){ document.getElementById('prod-in').value=D.prod; }
+  chk1();
+  alert('已複製！\n發生單位：'+D.unit+'\n責任單位：'+D.resp+'\n系列別：'+D.series);
 }
 
 function go(n){
   document.getElementById('s'+cur).classList.remove('active');
-  cur = n;
+  cur=n;
   document.getElementById('s'+cur).classList.add('active');
-  document.getElementById('hstep').textContent = n<=6 ? '步驟 '+n+' / 6' : '完成！';
+  document.getElementById('hstep').textContent=n<=6?'步驟 '+n+' / 6':'完成！';
   for(var i=1;i<=6;i++){
-    var el = document.getElementById('ps'+i);
-    el.className = 'ps'+(i===n?' active':i<n?' done':'');
+    document.getElementById('ps'+i).className='ps'+(i===n?' active':i<n?' done':'');
   }
   if(n===6) buildSummary();
   window.scrollTo(0,0);
@@ -450,28 +420,24 @@ function go(n){
 function pick(btn, gridId, key){
   document.getElementById(gridId).querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
   btn.classList.add('on');
-  D[key] = btn.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
-  var inId = gridId.replace('-g','-other-in');
-  var inp = document.getElementById(inId);
+  D[key]=btn.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+  var inId=gridId.replace('-g','-other-in');
+  var inp=document.getElementById(inId);
   if(inp){ inp.style.display='none'; inp.value=''; }
   if(key==='unit'||key==='resp') chk1();
 }
 
 function autoSeries(val){
-  var v = val.trim();
-  if(v === '') { D.series = ''; chk2(); return; }
-  if(v.includes('系列') || v.includes('共用')){
-    D.series = v;
-  } else {
-    D.series = v + ' 系列';
-  }
+  var v=val.trim();
+  if(!v){ D.series=''; chk2(); return; }
+  D.series=(v.includes('系列')||v.includes('共用'))?v:v+' 系列';
   chk2();
 }
 
 function pickSeries(btn, val){
   document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
   btn.classList.add('on');
-  D.series = val;
+  D.series=val;
   document.getElementById('series-other-in').style.display='none';
   document.getElementById('series-other-in').value='';
   chk2();
@@ -480,133 +446,86 @@ function pickSeries(btn, val){
 function pickOther(btn, gridId, key, inputId){
   document.getElementById(gridId).querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
   btn.classList.add('on');
-  D[key] = '';
-  var inp = document.getElementById(inputId);
-  inp.style.display = 'block';
-  inp.focus();
+  D[key]='';
+  var inp=document.getElementById(inputId);
+  inp.style.display='block'; inp.focus();
   if(key==='unit'||key==='resp') chk1();
 }
 
-function chk1(){ document.getElementById('n1').disabled = !(D.unit && D.resp); }
+function chk1(){ document.getElementById('n1').disabled=!(D.unit&&D.resp); }
 
 function multi(btn){
   btn.classList.toggle('on');
-  var val = btn.textContent.trim().replace(/\n.*/,'');
-  var idx = D.anom.indexOf(val);
+  var val=btn.textContent.trim().replace(/\n.*/,'');
+  var idx=D.anom.indexOf(val);
   if(btn.classList.contains('on')){ if(idx===-1) D.anom.push(val); }
   else { if(idx>-1) D.anom.splice(idx,1); }
   chk2();
 }
 
 function multiOther(btn){
-  var isOn = btn.classList.contains('on');
-  btn.classList.toggle('on', !isOn);
-  var inp = document.getElementById('anom-other-in');
+  var isOn=btn.classList.contains('on');
+  btn.classList.toggle('on',!isOn);
+  var inp=document.getElementById('anom-other-in');
   if(!isOn){
-    inp.style.display = 'block';
-    inp.focus();
-    if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1)D.anom.splice(i,1); }
-    D._anomOther = '';
+    inp.style.display='block'; inp.focus();
+    if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
+    D._anomOther='';
   } else {
-    inp.style.display = 'none';
-    inp.value = '';
-    if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1)D.anom.splice(i,1); }
-    D._anomOther = '';
-    chk2();
+    inp.style.display='none'; inp.value='';
+    if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
+    D._anomOther=''; chk2();
   }
 }
 
 function updateAnomOther(val){
-  if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1)D.anom.splice(i,1); }
-  D._anomOther = val.trim();
+  if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
+  D._anomOther=val.trim();
   if(D._anomOther) D.anom.push(D._anomOther);
   chk2();
 }
 
-function setProd(v){
-  document.getElementById('prod-in').value = v;
-  D.prod = v;
-  chk2();
-}
+function setProd(v){ document.getElementById('prod-in').value=v; D.prod=v; chk2(); }
 
 function chk2(){
-  D.prod = document.getElementById('prod-in').value.trim();
-  document.getElementById('n2').disabled = !(D.anom.length > 0 && D.series);
-}
-
-function pickR(btn, gridId, key){
-  document.getElementById(gridId).querySelectorAll('.rb').forEach(function(b){ b.classList.remove('on'); });
-  btn.classList.add('on');
-  D[key] = btn.textContent.trim();
-  updateRatio();
-}
-
-function setSamp(v){
-  D.samp = v;
-  document.getElementById('samp-in').value = v;
-  updateRatio();
-}
-function setBad(v){
-  D.bad = v;
-  document.getElementById('bad-in').value = v;
-  updateRatio();
-}
-function updateSamp(v){
-  D.samp = v.trim() || '';
-  updateRatio();
-}
-function updateBad(v){
-  D.bad = v.trim() || '';
-  updateRatio();
+  D.prod=document.getElementById('prod-in').value.trim();
+  document.getElementById('n2').disabled=!(D.anom.length>0&&D.series);
 }
 
 function qtyKey(k){
-  if(D.qty==='0') D.qty='';
-  if(D.qty.length >= 6) return;
-  D.qty = D.qty + k;
-  document.getElementById('qty-display').textContent = D.qty || '—';
+  if(D.qty.length>=6) return;
+  D.qty=D.qty+k;
+  document.getElementById('qty-display').textContent=D.qty||'—';
   chk3();
 }
-function qtyBackspace(){
-  D.qty = D.qty.slice(0,-1);
-  document.getElementById('qty-display').textContent = D.qty || '—';
-  chk3();
-}
-function qtyClear(){
-  D.qty = '';
-  document.getElementById('qty-display').textContent = '—';
-  chk3();
-}
-function qtyPreset(v){
-  D.qty = String(v);
-  document.getElementById('qty-display').textContent = D.qty;
-  chk3();
-}
+function qtyBackspace(){ D.qty=D.qty.slice(0,-1); document.getElementById('qty-display').textContent=D.qty||'—'; chk3(); }
+function qtyClear(){ D.qty=''; document.getElementById('qty-display').textContent='—'; chk3(); }
+function qtyPreset(v){ D.qty=String(v); document.getElementById('qty-display').textContent=D.qty; chk3(); }
+
+function setSamp(v){ D.samp=v; document.getElementById('samp-in').value=v; updateRatio(); }
+function setBad(v){ D.bad=v; document.getElementById('bad-in').value=v; updateRatio(); }
+function updateSamp(v){ D.samp=v.trim()||''; updateRatio(); }
+function updateBad(v){ D.bad=v.trim()||''; updateRatio(); }
 
 function updateRatio(){
-  var r = document.getElementById('ratio-res');
-  if(D.samp && D.bad){
-    r.style.display = 'block';
-    r.textContent = '不良比例：' + D.bad + ' / ' + D.samp;
-  } else {
-    r.style.display = 'none';
-  }
+  var r=document.getElementById('ratio-res');
+  if(D.samp&&D.bad){ r.style.display='block'; r.textContent='不良比例：'+D.bad+' / '+D.samp; }
+  else { r.style.display='none'; }
   chk3();
 }
 
-function chk3(){ document.getElementById('n3').disabled = !(D.qty && D.samp && D.bad); }
+function chk3(){ document.getElementById('n3').disabled=!(D.qty&&D.samp&&D.bad); }
 
 function handlePic(inp, num){
-  if(inp.files && inp.files[0]){
-    var reader = new FileReader();
-    reader.onload = function(e){
-      var pp = document.getElementById('pp'+num);
-      pp.src = e.target.result;
-      pp.style.display = 'block';
-      D.photo = true;
-      if(num===1) D.photoData = e.target.result;
-      if(num===2) D.photoData2 = e.target.result;
-      document.getElementById('n4').disabled = false;
+  if(inp.files&&inp.files[0]){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var pp=document.getElementById('pp'+num);
+      pp.src=e.target.result; pp.style.display='block';
+      D.photo=true;
+      if(num===1) D.photoData=e.target.result;
+      if(num===2) D.photoData2=e.target.result;
+      document.getElementById('n4').disabled=false;
     };
     reader.readAsDataURL(inp.files[0]);
   }
@@ -615,38 +534,40 @@ function handlePic(inp, num){
 function judgeBtn(btn, val, cls){
   document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px'; });
   btn.classList.add(cls);
-  D.judge = val;
+  D.judge=val;
 }
 
 function pickStatus(btn, val){
   document.getElementById('status-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
   btn.classList.add('on');
-  D.status = val;
+  D.status=val;
   document.getElementById('status-other-in').style.display='none';
+  // 重置自行輸入按鈕
+  var ob=document.querySelector('#s5 .sb[onclick="pickStatusOther(this)"]');
+  if(ob) ob.className='sb';
 }
 
 function pickStatusOther(btn){
   document.getElementById('status-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
   btn.classList.add('on');
-  D.status = '';
-  var inp = document.getElementById('status-other-in');
-  inp.style.display = 'block';
-  inp.focus();
+  D.status='';
+  var inp=document.getElementById('status-other-in');
+  inp.style.display='block'; inp.focus();
 }
 
 function setReplyOnline(btn){
-  D.replyDate = '上線中';
-  document.getElementById('reply-date-in').value = '';
-  btn.className = 'sb on';
+  D.replyDate='上線中';
+  document.getElementById('reply-date-in').value='';
+  btn.className='sb on';
 }
 
 function buildSummary(){
-  var t = new Date();
-  var d = t.getFullYear()+'/'+(t.getMonth()+1).toString().padStart(2,'0')+'/'+t.getDate().toString().padStart(2,'0');
-  D._date = d;
-  var jhtml = D.judge==='驗退X'?'<span class="tag tg-red">驗退 X</span>':D.judge==='特採△'?'<span class="tag tg-amber">特採 △</span>':'<span class="tag tg-green">加工 ○</span>';
-  var phtml = D.photo ? '<span style="color:#006600">已附照片 ✓' + (D.photoData2?' (2張)':' (1張)') + '</span>' : '<span style="color:#aaa">未附照片</span>';
-  document.getElementById('stbl').innerHTML =
+  var t=new Date();
+  var d=t.getFullYear()+'/'+(t.getMonth()+1).toString().padStart(2,'0')+'/'+t.getDate().toString().padStart(2,'0');
+  D._date=d;
+  var jhtml=D.judge==='驗退X'?'<span class="tag tg-red">驗退 X</span>':D.judge==='特採△'?'<span class="tag tg-amber">特採 △</span>':D.judge==='加工○'?'<span class="tag tg-green">加工 ○</span>':'<span style="color:#aaa">(未填)</span>';
+  var phtml=D.photo?'<span style="color:#006600">已附照片 ✓'+(D.photoData2?' (2張)':' (1張)')+'</span>':'<span style="color:#aaa">未附照片</span>';
+  document.getElementById('stbl').innerHTML=
     row('單號','<span style="color:#aaa">送出後自動產生</span>')+
     row('日期',d)+
     row('發生單位',D.unit)+
@@ -657,90 +578,63 @@ function buildSummary(){
     row('訂單數量',D.qty)+
     row('不良比例',D.bad+' / '+D.samp)+
     row('品質判定',jhtml)+
+    row('處理狀態',D.status||'(未填)')+
     row('照片',phtml)+
-    row('回覆期限',D.replyDate||'(未填)')+
-    row('處理狀態',D.status||'(未填)');
+    row('回覆期限',D.replyDate||'(未填)');
 }
 
 function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
 
 function showErr(msg){
-  var e = document.getElementById('errmsg');
-  e.textContent = msg;
-  e.style.display = 'block';
-  setTimeout(function(){ e.style.display='none'; }, 5000);
+  var e=document.getElementById('errmsg');
+  e.textContent=msg; e.style.display='block';
+  setTimeout(function(){ e.style.display='none'; },5000);
 }
 
 function submitForm(){
-  var btn = document.getElementById('n6');
-  btn.disabled = true;
-  btn.textContent = '送出中...';
+  var btn=document.getElementById('n6');
+  btn.disabled=true; btn.textContent='送出中...';
 
-  if(D.prod){
-    var idx = recentProds.indexOf(D.prod);
-    if(idx > -1) recentProds.splice(idx,1);
-    recentProds.unshift(D.prod);
-    recentProds = recentProds.slice(0,8);
-    localStorage.setItem('recentProds', JSON.stringify(recentProds));
-  }
-  if(D.unit){
-    var ui = recentUnits.indexOf(D.unit);
-    if(ui > -1) recentUnits.splice(ui,1);
-    recentUnits.unshift(D.unit);
-    recentUnits = recentUnits.slice(0,5);
-    localStorage.setItem('recentUnits', JSON.stringify(recentUnits));
-  }
-  if(D.resp){
-    var ri = recentResps.indexOf(D.resp);
-    if(ri > -1) recentResps.splice(ri,1);
-    recentResps.unshift(D.resp);
-    recentResps = recentResps.slice(0,5);
-    localStorage.setItem('recentResps', JSON.stringify(recentResps));
-  }
+  if(D.prod){ var idx=recentProds.indexOf(D.prod); if(idx>-1) recentProds.splice(idx,1); recentProds.unshift(D.prod); recentProds=recentProds.slice(0,8); localStorage.setItem('recentProds',JSON.stringify(recentProds)); }
+  if(D.unit){ var ui=recentUnits.indexOf(D.unit); if(ui>-1) recentUnits.splice(ui,1); recentUnits.unshift(D.unit); recentUnits=recentUnits.slice(0,5); localStorage.setItem('recentUnits',JSON.stringify(recentUnits)); }
+  if(D.resp){ var ri=recentResps.indexOf(D.resp); if(ri>-1) recentResps.splice(ri,1); recentResps.unshift(D.resp); recentResps=recentResps.slice(0,5); localStorage.setItem('recentResps',JSON.stringify(recentResps)); }
 
-  var payload = {
-    date: D._date,
-    unit: D.unit,
-    resp: D.resp,
-    series: D.series,
-    product: D.prod,
-    anomaly: D.anom.join('、'),
-    qty: D.qty,
-    ratio: D.bad + ' / ' + D.samp,
-    judge: D.judge,
-    replyDate: D.replyDate,
-    status: D.status,
-    photoData: D.photoData,
-    photoData2: D.photoData2,
-    userId: userId
+  // 存這一筆供下次複製
+  var saveD={unit:D.unit,resp:D.resp,series:D.series,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate};
+  localStorage.setItem('lastD',JSON.stringify(saveD));
+
+  var payload={
+    date:D._date, unit:D.unit, resp:D.resp, series:D.series,
+    product:D.prod, anomaly:D.anom.join('、'),
+    qty:D.qty, ratio:D.bad+' / '+D.samp,
+    judge:D.judge, status:D.status, replyDate:D.replyDate,
+    photoData:D.photoData, photoData2:D.photoData2, userId:userId
   };
 
-  fetch(API_URL + '/api/anomaly', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
+  fetch(API_URL+'/api/anomaly',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
   }).then(function(r){ return r.json(); })
   .then(function(res){
     if(res.success){
       go(7);
-      document.getElementById('dnum').textContent = res.number || '';
-      document.getElementById('nbox').innerHTML =
-        '<b>回報人：</b>' + (res.reporter || '(未知)') + '<br>' +
-        '<b>系列別：</b>' + D.series + '<br>' +
-        '<b>品名：</b>' + (D.prod || '(未填)') + '<br>' +
-        '<b>異常：</b>' + D.anom.join('、') + '<br>' +
-        '<b>比例：</b>' + D.samp + ' / ' + D.bad + '<br>' +
-        '<b>判定：</b>' + D.judge +
-        (D.replyDate ? '<br><b>回覆期限：</b>' + D.replyDate : '');
+      document.getElementById('dnum').textContent=res.number||'';
+      document.getElementById('nbox').innerHTML=
+        '<b>回報人：</b>'+(res.reporter||'(未知)')+'<br>'+
+        '<b>系列別：</b>'+D.series+'<br>'+
+        '<b>品名：</b>'+(D.prod||'(未填)')+'<br>'+
+        '<b>異常：</b>'+D.anom.join('、')+'<br>'+
+        '<b>比例：</b>'+D.bad+' / '+D.samp+'<br>'+
+        '<b>判定：</b>'+(D.judge||'(未填)')+
+        (D.status?'<br><b>處理狀態：</b>'+D.status:'')+
+        (D.replyDate?'<br><b>回覆期限：</b>'+D.replyDate:'');
     } else {
-      showErr('送出失敗：' + (res.error||'請重試'));
-      btn.disabled = false;
-      btn.textContent = '送出異常單 ✓';
+      showErr('送出失敗：'+(res.error||'請重試'));
+      btn.disabled=false; btn.textContent='送出異常單 ✓';
     }
-  }).catch(function(e){
+  }).catch(function(){
     showErr('網路錯誤，請確認網路連線後重試');
-    btn.disabled = false;
-    btn.textContent = '送出異常單 ✓';
+    btn.disabled=false; btn.textContent='送出異常單 ✓';
   });
 }
 
