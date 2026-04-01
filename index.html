@@ -418,12 +418,19 @@ function go(n){
 }
 
 function pick(btn, gridId, key){
+  var val=btn.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+  var isOn=btn.classList.contains('on');
   document.getElementById(gridId).querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
-  btn.classList.add('on');
-  D[key]=btn.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
   var inId=gridId.replace('-g','-other-in');
   var inp=document.getElementById(inId);
   if(inp){ inp.style.display='none'; inp.value=''; }
+  if(isOn){
+    // 取消選取
+    D[key]='';
+  } else {
+    btn.classList.add('on');
+    D[key]=val;
+  }
   if(key==='unit'||key==='resp') chk1();
 }
 
@@ -435,11 +442,16 @@ function autoSeries(val){
 }
 
 function pickSeries(btn, val){
+  var isOn=btn.classList.contains('on');
   document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
-  btn.classList.add('on');
-  D.series=val;
   document.getElementById('series-other-in').style.display='none';
   document.getElementById('series-other-in').value='';
+  if(isOn){
+    D.series='';
+  } else {
+    btn.classList.add('on');
+    D.series=val;
+  }
   chk2();
 }
 
@@ -532,19 +544,28 @@ function handlePic(inp, num){
 }
 
 function judgeBtn(btn, val, cls){
+  var isOn=btn.classList.contains(cls);
   document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px'; });
-  btn.classList.add(cls);
-  D.judge=val;
+  if(isOn){
+    D.judge='';
+  } else {
+    btn.classList.add(cls);
+    D.judge=val;
+  }
 }
 
 function pickStatus(btn, val){
+  var isOn=btn.classList.contains('on');
   document.getElementById('status-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
-  btn.classList.add('on');
-  D.status=val;
   document.getElementById('status-other-in').style.display='none';
-  // 重置自行輸入按鈕
   var ob=document.querySelector('#s5 .sb[onclick="pickStatusOther(this)"]');
   if(ob) ob.className='sb';
+  if(isOn){
+    D.status='';
+  } else {
+    btn.classList.add('on');
+    D.status=val;
+  }
 }
 
 function pickStatusOther(btn){
