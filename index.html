@@ -563,6 +563,9 @@ function copyLastSafe(){
   chk1();
   chk2();
   chk3();
+  document.getElementById('n1').disabled = !(D.unit && D.resp);
+  document.getElementById('n2').disabled = !(D.anom.length > 0);
+  document.getElementById('n3').disabled = !(D.qty && (D.ratioText || (D.bad && D.samp)));
 
   alert('已複製上一筆資料，可直接確認後按下一步。');
 }
