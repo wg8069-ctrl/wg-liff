@@ -157,8 +157,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="anom-other-in" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
   </div>
   <div class="card">
-    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
-    <input class="tinput" id="prod-in" placeholder="例：601滑套後蓋" oninput="D.prod=this.value.trim();chk2()">
+    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400">（可略過）</span></div>
+    <input class="tinput" id="prod-in" placeholder="例：WC4-795B-CR（可略過）" oninput="D.prod=this.value.trim();chk2()">
     <div class="recent" id="recent-list"></div>
     <div class="hint">最近使用品名，點一下帶入</div>
   </div>
@@ -194,7 +194,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     </div>
   </div>
   <div class="card">
-    <div class="card-title">不良比例</div>
+    <div class="card-title">不良比例 <span style="color:#aaa;font-size:11px;font-weight:400">（二擇一）</span></div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:6px;">方式一：直接輸入比例文字</div>
+      <input class="tinput" id="ratio-text-in" placeholder="例：3% 、5/100、全數不良" oninput="updateRatioText(this.value)" style="margin-bottom:4px;">
+      <div class="hint">填寫後可跳過下方不良數/抽驗數</div>
+    </div>
+    <div style="border-top:1px solid #f0f0f0;padding-top:12px;">
+      <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:10px;">方式二：選擇不良數 / 抽驗數</div>
+    </div>
     <div class="ratio-wrap">
       <div class="ratio-col">
         <div class="ratio-label">不良數</div>
@@ -314,7 +322,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
-var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',status:'',replyDate:''};
+var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',ratioText:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,judge:'',status:'',replyDate:''};
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
@@ -544,6 +552,21 @@ function updateOrderNo(){
   }
 }
 
+function updateRatioText(v){
+  D.ratioText = v.trim();
+  var r = document.getElementById('ratio-res');
+  if(D.ratioText){
+    r.style.display='block';
+    r.textContent='不良比例：' + D.ratioText;
+    D.samp=''; D.bad='';
+    document.getElementById('samp-in').value='';
+    document.getElementById('bad-in').value='';
+  } else {
+    if(!D.samp || !D.bad) r.style.display='none';
+  }
+  chk3();
+}
+
 function setSamp(v){ D.samp=v; document.getElementById('samp-in').value=v; updateRatio(); }
 function setBad(v){ D.bad=v; document.getElementById('bad-in').value=v; updateRatio(); }
 function updateSamp(v){ D.samp=v.trim()||''; updateRatio(); }
@@ -551,12 +574,22 @@ function updateBad(v){ D.bad=v.trim()||''; updateRatio(); }
 
 function updateRatio(){
   var r=document.getElementById('ratio-res');
-  if(D.samp&&D.bad){ r.style.display='block'; r.textContent='不良比例：'+D.bad+' / '+D.samp; }
-  else { r.style.display='none'; }
+  if(D.samp&&D.bad){
+    D.ratioText='';
+    document.getElementById('ratio-text-in').value='';
+    r.style.display='block';
+    r.textContent='不良比例：'+D.bad+' / '+D.samp;
+  } else if(!D.ratioText) {
+    r.style.display='none';
+  }
   chk3();
 }
 
-function chk3(){ document.getElementById('n3').disabled=!(D.qty&&D.samp&&D.bad); }
+function chk3(){
+  var hasRatioText = D.ratioText && D.ratioText.trim() !== '';
+  var hasRatioNum = D.samp && D.bad;
+  document.getElementById('n3').disabled=!(D.qty && (hasRatioText || hasRatioNum));
+}
 
 function handlePic(inp, num){
   if(inp.files&&inp.files[0]){
@@ -628,7 +661,7 @@ function buildSummary(){
     row('客戶訂單編號',D.orderNo||'(未填)')+
     row('異常狀況',D.anom.join('、'))+
     row('訂單數量',D.qty)+
-    row('不良比例',D.bad+' / '+D.samp)+
+    row('不良比例',D.ratioText||(D.bad+' / '+D.samp))+
     row('品質判定',jhtml)+
     row('處理狀態',D.status||'(未填)')+
     row('照片',phtml)+
@@ -658,7 +691,7 @@ function submitForm(){
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
     product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
-    qty:D.qty, ratio:D.bad+' / '+D.samp,
+    qty:D.qty, ratio:D.ratioText||(D.bad+' / '+D.samp),
     judge:D.judge, status:D.status, replyDate:D.replyDate,
     photoData:D.photoData, photoData2:D.photoData2, userId:userId
   };
