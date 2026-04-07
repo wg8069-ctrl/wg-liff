@@ -468,9 +468,8 @@ function copyLast(){
     if(D.judge && D.judge.indexOf('△')>-1 && txt.indexOf('△')>-1) b.classList.add('on-amber');
     if(D.judge && D.judge.indexOf('○')>-1 && txt.indexOf('○')>-1) b.classList.add('on');
   });
-  document.getElementById('status-other-in').value=D.status||'';
-  document.getElementById('reply-date-in').value=D.replyDate||'';
-  alert('已複製！\n發生單位：'+D.unit+'\n責任單位：'+D.resp+'\n系列別：'+D.series);
+  chk1();
+  alert('已複製！資料將在各步驟中自動帶入。');
 }
 
 function go(n){
@@ -481,8 +480,83 @@ function go(n){
   for(var i=1;i<=6;i++){
     document.getElementById('ps'+i).className='ps'+(i===n?' active':i<n?' done':'');
   }
+  if(n===2) applyStep2UI();
+  if(n===3) applyStep3UI();
+  if(n===5) applyStep5UI();
   if(n===6) buildSummary();
   window.scrollTo(0,0);
+}
+
+function applyStep2UI(){
+  // 系列別
+  if(D.series){
+    var inp = document.getElementById('series-other-in');
+    if(inp) inp.value = D.series;
+  }
+  // 異常狀況
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val=b.textContent.trim().replace(/
+.*/,'').replace(/[✏️]\s*/,'');
+    if(D.anom.indexOf(val)>-1){ b.classList.add('on'); } else { b.className='sb'; }
+  });
+  var predefined=[];
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val=b.textContent.trim().replace(/
+.*/,'').replace(/[✏️]\s*/,'');
+    if(val&&val!=='其他') predefined.push(val);
+  });
+  var custom=D.anom.filter(function(v){ return predefined.indexOf(v)===-1; });
+  var otherBtn=document.querySelector('#anom-g .sb[onclick*="multiOther"]');
+  var otherInp=document.getElementById('anom-other-in');
+  if(custom.length){
+    if(otherBtn) otherBtn.classList.add('on');
+    otherInp.style.display='block';
+    otherInp.value=custom.join('、');
+    D._anomOther=otherInp.value;
+  } else {
+    if(otherBtn) otherBtn.classList.remove('on');
+    otherInp.style.display='none'; otherInp.value=''; D._anomOther='';
+  }
+  // 品名
+  if(D.prod) document.getElementById('prod-in').value=D.prod;
+  // 訂單編號
+  if(D.orderNo) document.getElementById('order-in').value=D.orderNo;
+  chk2();
+}
+
+function applyStep3UI(){
+  // 訂單數量
+  document.getElementById('qty-display').textContent=D.qty||'—';
+  // 比例
+  if(D.ratioText){
+    document.getElementById('ratio-text-in').value=D.ratioText;
+    updateRatioText(D.ratioText);
+  } else if(D.bad&&D.samp){
+    document.getElementById('bad-in').value=D.bad;
+    document.getElementById('samp-in').value=D.samp;
+    updateRatio();
+  }
+  chk3();
+}
+
+function applyStep5UI(){
+  // 品質判定
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px';
+    var oc=b.getAttribute('onclick')||'';
+    if(D.judge==='驗退X'&&oc.indexOf('驗退X')>-1) b.classList.add('on-red');
+    else if(D.judge==='特採△'&&oc.indexOf('特採△')>-1) b.classList.add('on-amber');
+    else if(D.judge==='加工○'&&oc.indexOf('加工○')>-1) b.classList.add('on');
+  });
+  // 處理狀態
+  var statusInp=document.getElementById('status-other-in');
+  if(statusInp) statusInp.value=D.status||'';
+  // 回覆期限
+  if(D.replyDate&&D.replyDate!=='上線中'){
+    document.getElementById('reply-date-in').value=D.replyDate;
+  } else if(D.replyDate==='上線中'){
+    document.getElementById('reply-online-btn').className='sb on';
+  }
 }
 
 function copyLastSafe(){
