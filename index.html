@@ -400,7 +400,12 @@ function copyLast(){
   D.unit=lastD.unit||''; D.resp=lastD.resp||''; D.series=lastD.series||'';
   D.anom=(lastD.anom||[]).slice(); D.prod=lastD.prod||'';
   D.judge=lastD.judge||''; D.status=lastD.status||''; D.replyDate=lastD.replyDate||'';
+  D.qty=lastD.qty||'';
+  D.ratioText=lastD.ratioText||'';
+  D.bad=lastD.bad||'';
+  D.samp=lastD.samp||'';
   // 更新畫面
+  document.querySelectorAll('.sb').forEach(function(b){ b.classList.remove('on'); });
   document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
     if(b.textContent.trim()===D.unit){ b.classList.add('on'); }
   });
@@ -413,7 +418,17 @@ function copyLast(){
     });
   }
   if(D.prod){ document.getElementById('prod-in').value=D.prod; }
+  document.getElementById('qty-display').textContent=D.qty||'—';
+  document.getElementById('ratio-text-in').value=D.ratioText||'';
+  document.getElementById('bad-in').value=D.bad||'';
+  document.getElementById('samp-in').value=D.samp||'';
+  if(D.ratioText){
+    updateRatioText(D.ratioText);
+  } else {
+    updateRatio();
+  }
   chk1();
+  chk3();
   alert('已複製！\n發生單位：'+D.unit+'\n責任單位：'+D.resp+'\n系列別：'+D.series);
 }
 
@@ -557,7 +572,7 @@ function updateRatioText(v){
   var r = document.getElementById('ratio-res');
   if(D.ratioText){
     r.style.display='block';
-    r.textContent='不良比例：' + D.ratioText;
+    r.textContent=getRatioDisplayText();
     D.samp=''; D.bad='';
     document.getElementById('samp-in').value='';
     document.getElementById('bad-in').value='';
@@ -578,11 +593,32 @@ function updateRatio(){
     D.ratioText='';
     document.getElementById('ratio-text-in').value='';
     r.style.display='block';
-    r.textContent='不良比例：'+D.bad+' / '+D.samp;
+    r.textContent=getRatioDisplayText();
   } else if(!D.ratioText) {
     r.style.display='none';
   }
   chk3();
+}
+
+function getRatioValue(){
+  if(D.ratioText && D.ratioText.trim()) return D.ratioText.trim();
+  if(D.bad && D.samp) return D.bad+' / '+D.samp;
+  return '';
+}
+
+function getRatioDisplayText(){
+  if(D.ratioText && D.ratioText.trim()){
+    return '不良比例：' + D.ratioText.trim();
+  }
+  if(D.bad && D.samp){
+    var bad = Number(D.bad);
+    var samp = Number(D.samp);
+    if(Number.isFinite(bad) && Number.isFinite(samp) && samp > 0){
+      return '不良比例：' + ((bad / samp) * 100).toFixed(2) + '% (' + D.bad + ' / ' + D.samp + ')';
+    }
+    return '不良比例：' + D.bad + ' / ' + D.samp;
+  }
+  return '';
 }
 
 function chk3(){
@@ -661,7 +697,7 @@ function buildSummary(){
     row('客戶訂單編號',D.orderNo||'(未填)')+
     row('異常狀況',D.anom.join('、'))+
     row('訂單數量',D.qty)+
-    row('不良比例',D.ratioText||(D.bad+' / '+D.samp))+
+    row('不良比例',getRatioValue())+
     row('品質判定',jhtml)+
     row('處理狀態',D.status||'(未填)')+
     row('照片',phtml)+
@@ -685,13 +721,13 @@ function submitForm(){
   if(D.resp){ var ri=recentResps.indexOf(D.resp); if(ri>-1) recentResps.splice(ri,1); recentResps.unshift(D.resp); recentResps=recentResps.slice(0,5); localStorage.setItem('recentResps',JSON.stringify(recentResps)); }
 
   // 存這一筆供下次複製
-  var saveD={unit:D.unit,resp:D.resp,series:D.series,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate};
+  var saveD={unit:D.unit,resp:D.resp,series:D.series,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate,qty:D.qty,ratioText:D.ratioText,bad:D.bad,samp:D.samp};
   localStorage.setItem('lastD',JSON.stringify(saveD));
 
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
     product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
-    qty:D.qty, ratio:D.ratioText||(D.bad+' / '+D.samp),
+    qty:D.qty, ratio:getRatioValue(),
     judge:D.judge, status:D.status, replyDate:D.replyDate,
     photoData:D.photoData, photoData2:D.photoData2, userId:userId
   };
