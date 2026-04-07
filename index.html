@@ -157,8 +157,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="anom-other-in" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
   </div>
   <div class="card">
-    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400">（可略過）</span></div>
-    <input class="tinput" id="prod-in" placeholder="例：WC4-795B-CR（可略過）" oninput="D.prod=this.value.trim();chk2()">
+    <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
+    <input class="tinput" id="prod-in" placeholder="例：701槍身.307滑套" oninput="D.prod=this.value.trim();chk2()">
     <div class="recent" id="recent-list"></div>
     <div class="hint">最近使用品名，點一下帶入</div>
   </div>
@@ -417,6 +417,29 @@ function copyLast(){
       if(b.textContent.trim()===D.series){ b.classList.add('on'); }
     });
   }
+  var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
+  var otherAnomInput = document.getElementById('anom-other-in');
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val=b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(D.anom.indexOf(val)>-1){ b.classList.add('on'); }
+  });
+  var predefinedAnom = [];
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val=b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(val && val !== '其他') predefinedAnom.push(val);
+  });
+  var customAnom = D.anom.filter(function(v){ return predefinedAnom.indexOf(v)===-1; });
+  if(customAnom.length){
+    if(otherAnomBtn) otherAnomBtn.classList.add('on');
+    otherAnomInput.style.display='block';
+    otherAnomInput.value=customAnom.join('、');
+    D._anomOther=otherAnomInput.value;
+  } else {
+    if(otherAnomBtn) otherAnomBtn.classList.remove('on');
+    otherAnomInput.style.display='none';
+    otherAnomInput.value='';
+    D._anomOther='';
+  }
   if(D.prod){ document.getElementById('prod-in').value=D.prod; }
   document.getElementById('qty-display').textContent=D.qty||'—';
   document.getElementById('ratio-text-in').value=D.ratioText||'';
@@ -428,7 +451,29 @@ function copyLast(){
     updateRatio();
   }
   chk1();
+  chk2();
   chk3();
+  /*
+  /*
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var oc = b.getAttribute('onclick') || '';
+    if((D.judge==='驗退X' && oc.indexOf('驗退X')>-1) ||
+       (D.judge==='特採△' && oc.indexOf('特採△')>-1) ||
+       (D.judge==='加工○' && oc.indexOf('加工○')>-1)){
+      if(D.judge==='驗退X') b.classList.add('on-red');
+      else if(D.judge==='特採△') b.classList.add('on-amber');
+      else b.classList.add('on');
+    }
+  });
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var txt = b.textContent || '';
+    if(D.judge && D.judge.indexOf('X')>-1 && txt.indexOf('X')>-1) b.classList.add('on-red');
+    if(D.judge && D.judge.indexOf('△')>-1 && txt.indexOf('△')>-1) b.classList.add('on-amber');
+    if(D.judge && D.judge.indexOf('○')>-1 && txt.indexOf('○')>-1) b.classList.add('on');
+  });
+  */
+  document.getElementById('status-other-in').value=D.status||'';
+  document.getElementById('reply-date-in').value=D.replyDate||'';
   alert('已複製！\n發生單位：'+D.unit+'\n責任單位：'+D.resp+'\n系列別：'+D.series);
 }
 
@@ -727,7 +772,7 @@ function submitForm(){
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
     product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
-    qty:D.qty, ratio:getRatioValue(),
+    qty:D.qty, ratio:getRatioValue(), ratioText:D.ratioText||'', bad:D.bad||'', samp:D.samp||'',
     judge:D.judge, status:D.status, replyDate:D.replyDate,
     photoData:D.photoData, photoData2:D.photoData2, userId:userId
   };
