@@ -495,14 +495,12 @@ function applyStep2UI(){
   }
   // 異常狀況
   document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
-    var val=b.textContent.trim().replace(/
-.*/,'').replace(/[✏️]\s*/,'');
+    var val=b.textContent.trim().split('\n')[0].replace('✏️','').trim();
     if(D.anom.indexOf(val)>-1){ b.classList.add('on'); } else { b.className='sb'; }
   });
   var predefined=[];
   document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
-    var val=b.textContent.trim().replace(/
-.*/,'').replace(/[✏️]\s*/,'');
+    var val=b.textContent.trim().split('\n')[0].replace('✏️','').trim();
     if(val&&val!=='其他') predefined.push(val);
   });
   var custom=D.anom.filter(function(v){ return predefined.indexOf(v)===-1; });
