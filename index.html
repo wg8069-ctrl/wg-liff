@@ -158,7 +158,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   </div>
   <div class="card">
     <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
-    <input class="tinput" id="prod-in" placeholder="例：701槍身.307滑套" oninput="D.prod=this.value.trim();chk2()">
+    <input class="tinput" id="prod-in" placeholder="例：701槍身、307滑套" oninput="D.prod=this.value.trim();chk2()">
     <div class="recent" id="recent-list"></div>
     <div class="hint">最近使用品名，點一下帶入</div>
   </div>
@@ -286,7 +286,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="card-title">需求回覆時間 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
     <input type="date" class="tinput" id="reply-date-in" oninput="D.replyDate=this.value;document.getElementById('reply-online-btn').className='sb';" style="font-size:16px;">
     <button class="sb" id="reply-online-btn" style="margin-top:8px;width:100%;font-size:14px;" onclick="setReplyOnline(this)">🔄 上線中（不指定日期）</button>
-    <div class="hint">廠商需回覆的期限日期，或選「上線中」</div>
+    <div class="hint">品保需回覆的期限日期，或選「上線中」急需處理</div>
   </div>
   <div class="nav">
     <button class="btn-back" onclick="go(4)">← 返回</button>
@@ -790,7 +790,7 @@ function submitForm(){
         '<b>系列別：</b>'+D.series+'<br>'+
         '<b>品名：</b>'+(D.prod||'(未填)')+'<br>'+
         '<b>異常：</b>'+D.anom.join('、')+'<br>'+
-        '<b>比例：</b>'+D.bad+' / '+D.samp+'<br>'+
+        '<b>比例：</b>'+(getRatioValue()||'(未填)')+'<br>'+
         '<b>判定：</b>'+(D.judge||'(未填)')+
         (D.status?'<br><b>處理狀態：</b>'+D.status:'')+
         (D.replyDate?'<br><b>回覆期限：</b>'+D.replyDate:'');
