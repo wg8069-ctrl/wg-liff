@@ -413,9 +413,8 @@ function copyLast(){
     if(b.textContent.trim()===D.resp){ b.classList.add('on'); }
   });
   if(D.series){
-    document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
-      if(b.textContent.trim()===D.series){ b.classList.add('on'); }
-    });
+    var seriesInput = document.getElementById('series-other-in');
+    if(seriesInput){ seriesInput.value = D.series; }
   }
   var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
   var otherAnomInput = document.getElementById('anom-other-in');
@@ -453,8 +452,6 @@ function copyLast(){
   chk1();
   chk2();
   chk3();
-  /*
-  /*
   document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
     var oc = b.getAttribute('onclick') || '';
     if((D.judge==='驗退X' && oc.indexOf('驗退X')>-1) ||
@@ -471,7 +468,6 @@ function copyLast(){
     if(D.judge && D.judge.indexOf('△')>-1 && txt.indexOf('△')>-1) b.classList.add('on-amber');
     if(D.judge && D.judge.indexOf('○')>-1 && txt.indexOf('○')>-1) b.classList.add('on');
   });
-  */
   document.getElementById('status-other-in').value=D.status||'';
   document.getElementById('reply-date-in').value=D.replyDate||'';
   alert('已複製！\n發生單位：'+D.unit+'\n責任單位：'+D.resp+'\n系列別：'+D.series);
