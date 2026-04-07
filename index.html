@@ -515,8 +515,20 @@ function copyLastSafe(){
   document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
     if(b.textContent.trim() === D.unit) b.classList.add('on');
   });
+  document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background=b.textContent===D.unit?'#e8ffe8':'#f9f9f9';
+    b.style.borderColor=b.textContent===D.unit?'#00b900':'#ddd';
+    b.style.color=b.textContent===D.unit?'#006600':'#555';
+    b.style.fontWeight=b.textContent===D.unit?'600':'400';
+  });
   document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
     if(b.textContent.trim() === D.resp) b.classList.add('on');
+  });
+  document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background=b.textContent===D.resp?'#e8ffe8':'#f9f9f9';
+    b.style.borderColor=b.textContent===D.resp?'#00b900':'#ddd';
+    b.style.color=b.textContent===D.resp?'#006600':'#555';
+    b.style.fontWeight=b.textContent===D.resp?'600':'400';
   });
   document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
     if(b.textContent.trim() === D.series) b.classList.add('on');
