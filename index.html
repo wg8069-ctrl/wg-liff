@@ -87,7 +87,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 1 -->
 <div class="step active" id="s1">
   <div id="copy-last-wrap" style="display:none;margin:12px 12px 0;">
-    <button class="copy-btn" onclick="copyLastSafe()">📋 複製上一筆資料</button>
+    <button class="copy-btn" onclick="copyLastSafe2()">📋 複製上一筆資料</button>
   </div>
   <div class="card">
     <div class="card-title">發生單位</div>
@@ -532,6 +532,100 @@ function copyLastSafe(){
   });
   document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
     if(b.textContent.trim() === D.series) b.classList.add('on');
+  });
+
+  var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
+  var otherAnomInput = document.getElementById('anom-other-in');
+  var predefinedAnom = [];
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val = b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(val && val !== '其他') predefinedAnom.push(val);
+    if(D.anom.indexOf(val) > -1) b.classList.add('on');
+  });
+  var customAnom = D.anom.filter(function(v){ return predefinedAnom.indexOf(v) === -1; });
+  if(customAnom.length){
+    if(otherAnomBtn) otherAnomBtn.classList.add('on');
+    otherAnomInput.style.display = 'block';
+    otherAnomInput.value = customAnom.join('、');
+    D._anomOther = otherAnomInput.value;
+  } else {
+    if(otherAnomBtn) otherAnomBtn.classList.remove('on');
+    otherAnomInput.style.display = 'none';
+    otherAnomInput.value = '';
+  }
+
+  document.getElementById('prod-in').value = D.prod || '';
+  document.getElementById('qty-display').textContent = D.qty || '—';
+  document.getElementById('ratio-text-in').value = D.ratioText || '';
+  document.getElementById('bad-in').value = D.bad || '';
+  document.getElementById('samp-in').value = D.samp || '';
+  if(D.ratioText) updateRatioText(D.ratioText);
+  else updateRatio();
+
+  document.getElementById('status-other-in').value = D.status || '';
+  document.getElementById('reply-date-in').value = D.replyDate || '';
+
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var txt = b.textContent || '';
+    if(D.judge && D.judge.indexOf('X') > -1 && txt.indexOf('X') > -1) b.classList.add('on-red');
+    else if(D.judge && D.judge.indexOf('△') > -1 && txt.indexOf('△') > -1) b.classList.add('on-amber');
+    else if(D.judge && D.judge.indexOf('○') > -1 && txt.indexOf('○') > -1) b.classList.add('on');
+  });
+
+  chk1();
+  chk2();
+  chk3();
+  document.getElementById('n1').disabled = !(D.unit && D.resp);
+  document.getElementById('n2').disabled = !(D.anom.length > 0);
+  document.getElementById('n3').disabled = !(D.qty && (D.ratioText || (D.bad && D.samp)));
+
+  alert('已複製上一筆資料，可直接確認後按下一步。');
+}
+
+function copyLastSafe2(){
+  if(!lastD) return;
+
+  D.unit = lastD.unit || '';
+  D.resp = lastD.resp || '';
+  D.series = lastD.series || '';
+  D.anom = Array.isArray(lastD.anom) ? lastD.anom.slice() : [];
+  D.prod = lastD.prod || '';
+  D.judge = lastD.judge || '';
+  D.status = lastD.status || '';
+  D.replyDate = lastD.replyDate || '';
+  D.qty = lastD.qty || '';
+  D.ratioText = lastD.ratioText || '';
+  D.bad = lastD.bad || '';
+  D.samp = lastD.samp || '';
+  D._anomOther = '';
+
+  document.querySelectorAll('.sb').forEach(function(b){
+    b.classList.remove('on');
+    b.classList.remove('on-red');
+    b.classList.remove('on-amber');
+  });
+
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.unit) b.classList.add('on');
+  });
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.resp) b.classList.add('on');
+  });
+  document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.series) b.classList.add('on');
+  });
+
+  document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = '#f9f9f9';
+    b.style.borderColor = '#ddd';
+    b.style.color = '#555';
+    b.style.fontWeight = '400';
+  });
+  document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = '#f9f9f9';
+    b.style.borderColor = '#ddd';
+    b.style.color = '#555';
+    b.style.fontWeight = '400';
   });
 
   var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
