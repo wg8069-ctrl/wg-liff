@@ -45,7 +45,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .tinput:focus{border-color:#00b900;}
 .recent{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .rbtn{padding:6px 12px;border:1px solid #ddd;border-radius:14px;font-size:12px;color:#555;cursor:pointer;background:#f9f9f9;-webkit-tap-highlight-color:transparent;}
-.hint{font-size:11px;color:#aaa;margin-top:4px;}
+.rbtn:active{background:#e8ffe8;border-color:#00b900;}
+.hint{font-size:11px;color:#aaa;margin-top:6px;}
 .ratio-wrap{display:flex;gap:10px;align-items:flex-start;}
 .ratio-col{flex:1;}
 .ratio-label{font-size:12px;color:#888;margin-bottom:6px;font-weight:600;}
@@ -65,6 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .done .ds{font-size:14px;color:#888;}
 .nbox{background:#f0fff0;border:1px solid #c8ecc8;border-radius:12px;padding:14px;margin-top:20px;font-size:14px;color:#444;text-align:left;line-height:1.8;}
 .err{background:#ffeaea;border:1px solid #e24b4a;border-radius:10px;padding:12px;margin:12px;font-size:14px;color:#a32d2d;display:none;}
+.copy-btn{width:100%;padding:12px;background:#fff;border:1.5px dashed #00b900;border-radius:12px;color:#006600;font-size:14px;cursor:pointer;margin:12px 0 0;-webkit-tap-highlight-color:transparent;}
 </style>
 </head>
 <body>
@@ -85,34 +87,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 1 -->
 <div class="step active" id="s1">
   <div id="copy-last-wrap" style="display:none;margin:12px 12px 0;">
-    <button onclick="copyLast()" style="width:100%;padding:12px;background:#fff;border:1.5px dashed #00b900;border-radius:12px;color:#006600;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;">
-      📋 複製上一筆資料
-    </button>
+    <button class="copy-btn" onclick="copyLastSafe3()">📋 複製上一筆資料</button>
   </div>
   <div class="card">
     <div class="card-title">發生單位</div>
     <div class="g2" id="unit-g">
-      <button class="sb" onclick="toggle(this,'unit-g','unit')">本廠</button>
-      <button class="sb" onclick="toggle(this,'unit-g','unit')">二廠</button>
-      <button class="sb" onclick="toggle(this,'unit-g','unit')">品保</button>
-      <button class="sb" onclick="toggle(this,'unit-g','unit')">資管</button>
-      <button class="sb" onclick="toggle(this,'unit-g','unit')">大元</button>
-      <button class="sb" onclick="toggle(this,'unit-g','unit')">豪業</button>
-      <button class="sb" onclick="toggle(this,'unit-g','unit')">久樓</button>
-      <button class="sb" onclick="toggleOther(this,'unit-g','unit','unit-inp')">✏️ 其他</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">本廠</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">二廠</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">品保</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">資管</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">大元</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">豪業</button>
+      <button class="sb" onclick="pick(this,'unit-g','unit')">久樓</button>
+      <button class="sb" onclick="pickOther(this,'unit-g','unit','unit-other-in')">✏️ 其他</button>
     </div>
-    <input class="tinput" id="unit-inp" placeholder="請輸入發生單位" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
-    <div class="recent" id="unit-recent"></div>
+    <input class="tinput" id="unit-other-in" placeholder="請輸入發生單位" style="display:none;margin-top:8px;" oninput="D.unit=this.value.trim();chk1()">
+    <div class="recent" id="unit-recent-list"></div>
+    <div class="hint" id="unit-recent-hint" style="display:none;">最近使用，點一下帶入</div>
   </div>
   <div class="card">
     <div class="card-title">責任單位</div>
     <div class="g2" id="resp-g">
-      <button class="sb" onclick="toggle(this,'resp-g','resp')">偉剛</button>
-      <button class="sb" onclick="toggle(this,'resp-g','resp')">待確認</button>
-      <button class="sb" onclick="toggleOther(this,'resp-g','resp','resp-inp')">✏️ 其他</button>
+      <button class="sb" onclick="pick(this,'resp-g','resp')">偉剛</button>
+      <button class="sb" onclick="pick(this,'resp-g','resp')">待確認</button>
+      <button class="sb" onclick="pickOther(this,'resp-g','resp','resp-other-in')">✏️ 其他</button>
     </div>
-    <input class="tinput" id="resp-inp" placeholder="請輸入責任單位" style="display:none;margin-top:8px;" oninput="D.resp=this.value.trim();chk1()">
-    <div class="recent" id="resp-recent"></div>
+    <input class="tinput" id="resp-other-in" placeholder="請輸入責任單位" style="display:none;margin-top:8px;" oninput="D.resp=this.value.trim();chk1()">
+    <div class="recent" id="resp-recent-list"></div>
+    <div class="hint" id="resp-recent-hint" style="display:none;">最近使用，點一下帶入</div>
   </div>
   <div class="nav">
     <button class="btn-next" id="n1" onclick="go(2)" disabled>下一步 →</button>
@@ -122,9 +124,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 2 -->
 <div class="step" id="s2">
   <div class="card">
-    <div class="card-title">系列別 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
-    <input class="tinput" id="series-inp" placeholder="輸入數字，例如：1、2、3" oninput="autoSeries(this.value)">
-    <div class="hint">輸入數字後自動加「系列」</div>
+    <div class="card-title">系列別</div>
+    <input class="tinput" id="series-other-in" placeholder="輸入數字，例如：1、2、3" oninput="autoSeries(this.value)">
+    <div class="hint">輸入數字後自動加上「系列」</div>
   </div>
   <div class="card">
     <div class="card-title">單號 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
@@ -138,26 +140,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'510A-')">510A-</button>
       <button class="rb" style="padding:8px 10px;font-size:13px;" onclick="setPrefix(this,'510B-')">510B-</button>
     </div>
-    <input class="tinput" id="order-inp" placeholder="輸入後面的號碼" oninput="updateOrderNo()">
+    <input class="tinput" id="order-in" placeholder="輸入後面的號碼" oninput="updateOrderNo()">
     <div id="order-preview" style="background:#f0fff0;border:1px solid #00b900;border-radius:8px;padding:8px 12px;font-size:15px;color:#006600;font-weight:600;margin-top:6px;display:none;"></div>
   </div>
   <div class="card">
     <div class="card-title">異常狀況（可多選）</div>
     <div class="g2" id="anom-g">
-      <button class="sb" onclick="multiToggle(this)">外觀不良</button>
-      <button class="sb" onclick="multiToggle(this)">尺寸異常</button>
-      <button class="sb" onclick="multiToggle(this)">功能異常</button>
-      <button class="sb" onclick="multiToggle(this)">來料不足</button>
-      <button class="sb" onclick="multiToggle(this)">未附六面圖</button>
-      <button class="sb" onclick="multiToggle(this)">標示錯誤</button>
+      <button class="sb" onclick="multi(this)">外觀不良</button>
+      <button class="sb" onclick="multi(this)">尺寸異常</button>
+      <button class="sb" onclick="multi(this)">功能異常</button>
+      <button class="sb" onclick="multi(this)">來料不足</button>
+      <button class="sb" onclick="multi(this)">未附六面圖</button>
+      <button class="sb" onclick="multi(this)">標示錯誤</button>
       <button class="sb" onclick="multiOther(this)">✏️ 其他</button>
     </div>
-    <input class="tinput" id="anom-inp" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
+    <input class="tinput" id="anom-other-in" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
   </div>
   <div class="card">
     <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
-    <input class="tinput" id="prod-inp" placeholder="例：701槍身.307滑套" oninput="D.prod=this.value.trim();chk2()">
-    <div class="recent" id="prod-recent"></div>
+    <input class="tinput" id="prod-in" placeholder="例：701槍身、307滑套" oninput="D.prod=this.value.trim();chk2()">
+    <div class="recent" id="recent-list"></div>
+    <div class="hint">最近使用品名，點一下帶入</div>
   </div>
   <div class="nav">
     <button class="btn-back" onclick="go(1)">← 返回</button>
@@ -169,7 +172,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <div class="step" id="s3">
   <div class="card">
     <div class="card-title">訂單數量</div>
-    <div style="background:#f9f9f9;border:1.5px solid #ddd;border-radius:10px;padding:12px 16px;font-size:28px;font-weight:600;color:#222;text-align:right;min-height:52px;margin-bottom:10px;" id="qty-display">—</div>
+    <div style="background:#f9f9f9;border:1.5px solid #ddd;border-radius:10px;padding:12px 16px;font-size:28px;font-weight:600;color:#222;text-align:right;min-height:52px;margin-bottom:10px;letter-spacing:2px;" id="qty-display">—</div>
     <div class="g4" style="gap:8px;">
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('1')">1</button>
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('2')">2</button>
@@ -178,56 +181,56 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('4')">4</button>
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('5')">5</button>
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('6')">6</button>
-      <button class="rb" style="padding:14px 4px;font-size:16px;background:#fff3cd;border-color:#ba7517;color:#633806;" onclick="qtyBack()">⌫</button>
+      <button class="rb" style="padding:14px 4px;font-size:16px;background:#fff3cd;border-color:#ba7517;color:#633806;" onclick="qtyBackspace()">⌫</button>
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('7')">7</button>
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('8')">8</button>
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('9')">9</button>
       <button class="rb" style="padding:14px 4px;font-size:16px;" onclick="qtyKey('0')">0</button>
     </div>
     <div style="display:flex;gap:8px;margin-top:8px;">
-      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtySet(504)">504</button>
-      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtySet(1008)">1008</button>
-      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtySet(2016)">2016</button>
+      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtyPreset(504)">504</button>
+      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtyPreset(1008)">1008</button>
+      <button class="rb" style="flex:1;padding:14px 4px;font-size:14px;" onclick="qtyPreset(2016)">2016</button>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">不良比例 <span style="color:#aaa;font-size:11px;font-weight:400">（二擇一必填）</span></div>
+    <div class="card-title">不良比例 <span style="color:#aaa;font-size:11px;font-weight:400">（二擇一）</span></div>
     <div style="margin-bottom:12px;">
-      <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:6px;">▸ 方式一：直接輸入比例</div>
-      <input class="tinput" id="ratio-text-inp" placeholder="例：3%、5/100、全數不良" oninput="updateRatioText(this.value)">
+      <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:6px;">方式一：直接輸入比例文字</div>
+      <input class="tinput" id="ratio-text-in" placeholder="例：3% 、5/100、全數不良" oninput="updateRatioText(this.value)" style="margin-bottom:4px;">
       <div class="hint">填寫後可跳過下方不良數/抽驗數</div>
     </div>
     <div style="border-top:1px solid #f0f0f0;padding-top:12px;">
-      <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:10px;">▸ 方式二：不良數 / 抽驗數</div>
-      <div class="ratio-wrap">
-        <div class="ratio-col">
-          <div class="ratio-label">不良數</div>
-          <input class="tinput" id="bad-inp" type="number" inputmode="numeric" placeholder="數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="D.bad=this.value.trim();updateRatio()">
-          <div class="g4">
-            <button class="rb" onclick="setBad('全')">全</button>
-            <button class="rb" onclick="setBad('5')">5</button>
-            <button class="rb" onclick="setBad('10')">10</button>
-            <button class="rb" onclick="setBad('20')">20</button>
-            <button class="rb" onclick="setBad('50')">50</button>
-            <button class="rb" onclick="setBad('100')">100</button>
-            <button class="rb" onclick="setBad('200')">200</button>
-            <button class="rb" onclick="setBad('500')">500</button>
-          </div>
+      <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:10px;">方式二：選擇不良數 / 抽驗數</div>
+    </div>
+    <div class="ratio-wrap">
+      <div class="ratio-col">
+        <div class="ratio-label">不良數</div>
+        <input class="tinput" id="bad-in" type="number" inputmode="numeric" placeholder="輸入數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="updateBad(this.value)">
+        <div class="g4">
+          <button class="rb" onclick="setBad('全')">全</button>
+          <button class="rb" onclick="setBad('5')">5</button>
+          <button class="rb" onclick="setBad('10')">10</button>
+          <button class="rb" onclick="setBad('20')">20</button>
+          <button class="rb" onclick="setBad('50')">50</button>
+          <button class="rb" onclick="setBad('100')">100</button>
+          <button class="rb" onclick="setBad('200')">200</button>
+          <button class="rb" onclick="setBad('500')">500</button>
         </div>
-        <div class="ratio-div">/</div>
-        <div class="ratio-col">
-          <div class="ratio-label">抽驗數</div>
-          <input class="tinput" id="samp-inp" type="number" inputmode="numeric" placeholder="數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="D.samp=this.value.trim();updateRatio()">
-          <div class="g4">
-            <button class="rb" onclick="setSamp('全')">全</button>
-            <button class="rb" onclick="setSamp('5')">5</button>
-            <button class="rb" onclick="setSamp('10')">10</button>
-            <button class="rb" onclick="setSamp('20')">20</button>
-            <button class="rb" onclick="setSamp('50')">50</button>
-            <button class="rb" onclick="setSamp('100')">100</button>
-            <button class="rb" onclick="setSamp('200')">200</button>
-            <button class="rb" onclick="setSamp('500')">500</button>
-          </div>
+      </div>
+      <div class="ratio-div">/</div>
+      <div class="ratio-col">
+        <div class="ratio-label">抽驗數</div>
+        <input class="tinput" id="samp-in" type="number" inputmode="numeric" placeholder="輸入數字" style="font-size:20px;text-align:center;margin-bottom:6px;" oninput="updateSamp(this.value)">
+        <div class="g4">
+          <button class="rb" onclick="setSamp('全')">全</button>
+          <button class="rb" onclick="setSamp('5')">5</button>
+          <button class="rb" onclick="setSamp('10')">10</button>
+          <button class="rb" onclick="setSamp('20')">20</button>
+          <button class="rb" onclick="setSamp('50')">50</button>
+          <button class="rb" onclick="setSamp('100')">100</button>
+          <button class="rb" onclick="setSamp('200')">200</button>
+          <button class="rb" onclick="setSamp('500')">500</button>
         </div>
       </div>
     </div>
@@ -244,18 +247,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="card">
     <div class="card-title">異常照片（最多 2 張）</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('cam1').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 1 張</span></button>
-      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('gal1').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 1 張</span></button>
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera1').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 1 張</span></button>
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery1').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 1 張</span></button>
     </div>
-    <input type="file" id="cam1" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,1)">
-    <input type="file" id="gal1" accept="image/*" style="display:none" onchange="handlePic(this,1)">
+    <input type="file" id="pf-camera1" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,1)">
+    <input type="file" id="pf-gallery1" accept="image/*" style="display:none" onchange="handlePic(this,1)">
     <img id="pp1" style="width:100%;border-radius:8px;margin-top:6px;display:none;max-height:200px;object-fit:cover;">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;margin-bottom:8px;">
-      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('cam2').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
-      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('gal2').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera2').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
+      <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery2').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
     </div>
-    <input type="file" id="cam2" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,2)">
-    <input type="file" id="gal2" accept="image/*" style="display:none" onchange="handlePic(this,2)">
+    <input type="file" id="pf-camera2" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,2)">
+    <input type="file" id="pf-gallery2" accept="image/*" style="display:none" onchange="handlePic(this,2)">
     <img id="pp2" style="width:100%;border-radius:8px;margin-top:6px;display:none;max-height:200px;object-fit:cover;">
   </div>
   <div class="nav">
@@ -268,21 +271,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 5 -->
 <div class="step" id="s5">
   <div class="card">
+    <div class="card-title">所耗工時 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+      <div>
+        <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:6px;">人工成本</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="tinput" id="labor-people-inp" type="number" inputmode="numeric" placeholder="人" style="text-align:center;font-size:16px;margin-bottom:0;" oninput="updateLaborCost()">
+          <span style="color:#888;white-space:nowrap;">人</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <input class="tinput" id="labor-hours-inp" type="number" inputmode="numeric" placeholder="小時" style="text-align:center;font-size:16px;margin-bottom:0;" oninput="updateLaborCost()">
+          <span style="color:#888;white-space:nowrap;">小時</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:6px;">行政成本</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="tinput" id="admin-people-inp" type="number" inputmode="numeric" placeholder="人" style="text-align:center;font-size:16px;margin-bottom:0;" oninput="updateLaborCost()">
+          <span style="color:#888;white-space:nowrap;">人</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <input class="tinput" id="admin-hours-inp" type="number" inputmode="numeric" placeholder="小時" style="text-align:center;font-size:16px;margin-bottom:0;" oninput="updateLaborCost()">
+          <span style="color:#888;white-space:nowrap;">小時</span>
+        </div>
+      </div>
+    </div>
+    <div id="labor-cost-result" style="background:#e8ffe8;border:1px solid #00b900;border-radius:8px;padding:10px;font-size:15px;color:#006600;font-weight:600;text-align:center;display:none;">
+      所耗人力成本：$<span id="labor-cost-val">0</span>
+    </div>
+    <div class="hint">時薪 $420 計算｜(人工人數×人工小時 + 行政人數×行政小時) × 420</div>
+  </div>
+  <div class="card">
     <div class="card-title">品質判定 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
     <div class="g3" id="judge-g">
-      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeToggle(this,'驗退X','on-red')">❌<br><br>驗退 X</button>
-      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeToggle(this,'特採△','on-amber')">⚠️<br><br>特採 △</button>
-      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeToggle(this,'加工○','on')">🔧<br><br>加工 ○</button>
+      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'驗退X','on-red')">❌<br><br>驗退 X</button>
+      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'特採△','on-amber')">⚠️<br><br>特採 △</button>
+      <button class="sb" style="padding:20px 6px;font-size:15px;" onclick="judgeBtn(this,'加工○','on')">🔧<br><br>加工 ○</button>
     </div>
   </div>
   <div class="card">
     <div class="card-title">目前處理狀態 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
-    <input class="tinput" id="status-inp" placeholder="自行輸入處理狀態" oninput="D.status=this.value.trim()">
+    <input class="tinput" id="status-other-in" placeholder="自行輸入處理狀態" oninput="D.status=this.value.trim()">
   </div>
   <div class="card">
     <div class="card-title">需求回覆時間 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
-    <input type="date" class="tinput" id="reply-date-inp" oninput="D.replyDate=this.value;document.getElementById('online-btn').className='sb';">
-    <button class="sb" id="online-btn" style="margin-top:8px;width:100%;font-size:14px;" onclick="setOnline(this)">🔄 上線中</button>
+    <input type="date" class="tinput" id="reply-date-in" oninput="D.replyDate=this.value;document.getElementById('reply-online-btn').className='sb';" style="font-size:16px;">
+    <button class="sb" id="reply-online-btn" style="margin-top:8px;width:100%;font-size:14px;" onclick="setReplyOnline(this)">🔄 上線中（不指定日期）</button>
+    <div class="hint">品保需回覆的期限日期，或選「上線中」</div>
   </div>
   <div class="nav">
     <button class="btn-back" onclick="go(4)">← 返回</button>
@@ -318,18 +353,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
-var D = {
-  unit:'', resp:'', series:'', orderNo:'', _prefix:'',
-  anom:[], _anomOther:'', prod:'',
-  qty:'', bad:'', samp:'', ratioText:'',
-  photo:false, photoData:null, photoData2:null,
-  judge:'', status:'', replyDate:''
-};
+var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',ratioText:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,laborPeople:'',laborHours:'',adminPeople:'',adminHours:'',laborCost:'',judge:'',status:'',replyDate:''};
 var cur = 1;
 var userId = '';
-var recentProds = JSON.parse(localStorage.getItem('rp') || '[]');
-var recentUnits = JSON.parse(localStorage.getItem('ru') || '[]');
-var recentResps = JSON.parse(localStorage.getItem('rr') || '[]');
+var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
+var recentUnits = JSON.parse(localStorage.getItem('recentUnits') || '[]');
+var recentResps = JSON.parse(localStorage.getItem('recentResps') || '[]');
 var lastD = JSON.parse(localStorage.getItem('lastD') || 'null');
 
 liff.init({liffId: LIFF_ID}).then(function(){
@@ -338,96 +367,492 @@ liff.init({liffId: LIFF_ID}).then(function(){
   } else { liff.login(); }
 }).catch(function(){ console.log('LIFF init failed'); });
 
-renderRecentAll();
+renderRecent();
+renderUnitRecent();
+renderRespRecent();
 if(lastD){ document.getElementById('copy-last-wrap').style.display = 'block'; }
 
-function renderRecentAll(){
-  renderRecentList('unit-recent', recentUnits, function(v){
-    clearGroup('unit-g'); D.unit=v; chk1();
-    document.querySelectorAll('#unit-recent .rbtn').forEach(function(b){
-      b.style.fontWeight = b.textContent===v?'600':'400';
-      b.style.background = b.textContent===v?'#e8ffe8':'#f9f9f9';
-      b.style.borderColor = b.textContent===v?'#00b900':'#ddd';
-    });
-  });
-  renderRecentList('resp-recent', recentResps, function(v){
-    clearGroup('resp-g'); D.resp=v; chk1();
-  });
-  renderRecentList('prod-recent', recentProds, function(v){
-    document.getElementById('prod-inp').value=v; D.prod=v; chk2();
-  });
-}
-
-function renderRecentList(id, arr, cb){
-  var el=document.getElementById(id); if(!el) return;
-  el.innerHTML='';
-  arr.slice(0,5).forEach(function(v){
+function renderUnitRecent(){
+  var el = document.getElementById('unit-recent-list');
+  var hint = document.getElementById('unit-recent-hint');
+  if(!recentUnits.length){ el.innerHTML=''; hint.style.display='none'; return; }
+  hint.style.display='block'; el.innerHTML='';
+  recentUnits.slice(0,5).forEach(function(v){
     var b=document.createElement('button'); b.className='rbtn'; b.textContent=v;
-    b.onclick=function(){ cb(v); }; el.appendChild(b);
+    b.onclick=function(){ pickUnitRecent(v); }; el.appendChild(b);
   });
 }
 
-function clearGroup(gridId){
-  document.getElementById(gridId).querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
-  var inp = document.getElementById(gridId.replace('-g','-inp'));
-  if(inp){ inp.style.display='none'; inp.value=''; }
+function pickUnitRecent(v){
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  document.getElementById('unit-other-in').style.display='none';
+  D.unit=v; chk1();
+  document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background=b.textContent===v?'#e8ffe8':'#f9f9f9';
+    b.style.borderColor=b.textContent===v?'#00b900':'#ddd';
+    b.style.color=b.textContent===v?'#006600':'#555';
+    b.style.fontWeight=b.textContent===v?'600':'400';
+  });
 }
 
-function toggle(btn, gridId, key){
-  var val = btn.textContent.trim();
-  var wasOn = btn.classList.contains('on');
-  clearGroup(gridId);
-  if(!wasOn){ btn.classList.add('on'); D[key]=val; }
-  else { D[key]=''; }
+function renderRespRecent(){
+  var el = document.getElementById('resp-recent-list');
+  var hint = document.getElementById('resp-recent-hint');
+  if(!recentResps.length){ el.innerHTML=''; hint.style.display='none'; return; }
+  hint.style.display='block'; el.innerHTML='';
+  recentResps.slice(0,5).forEach(function(v){
+    var b=document.createElement('button'); b.className='rbtn'; b.textContent=v;
+    b.onclick=function(){ pickRespRecent(v); }; el.appendChild(b);
+  });
+}
+
+function pickRespRecent(v){
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  document.getElementById('resp-other-in').style.display='none';
+  D.resp=v; chk1();
+  document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background=b.textContent===v?'#e8ffe8':'#f9f9f9';
+    b.style.borderColor=b.textContent===v?'#00b900':'#ddd';
+    b.style.color=b.textContent===v?'#006600':'#555';
+    b.style.fontWeight=b.textContent===v?'600':'400';
+  });
+}
+
+function renderRecent(){
+  var el = document.getElementById('recent-list'); el.innerHTML='';
+  recentProds.slice(0,5).forEach(function(p){
+    var b=document.createElement('button'); b.className='rbtn'; b.textContent=p;
+    b.onclick=function(){ setProd(p); }; el.appendChild(b);
+  });
+}
+
+function copyLast(){
+  if(!lastD) return;
+  D.unit=lastD.unit||''; D.resp=lastD.resp||''; D.series=lastD.series||'';
+  D.anom=(lastD.anom||[]).slice(); D.prod=lastD.prod||'';
+  D.judge=lastD.judge||''; D.status=lastD.status||''; D.replyDate=lastD.replyDate||'';
+  D.qty=lastD.qty||'';
+  D.ratioText=lastD.ratioText||'';
+  D.bad=lastD.bad||'';
+  D.samp=lastD.samp||'';
+  // 更新畫面
+  document.querySelectorAll('.sb').forEach(function(b){ b.classList.remove('on'); });
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim()===D.unit){ b.classList.add('on'); }
+  });
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim()===D.resp){ b.classList.add('on'); }
+  });
+  if(D.series){
+    document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
+      if(b.textContent.trim()===D.series){ b.classList.add('on'); }
+    });
+  }
+  var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
+  var otherAnomInput = document.getElementById('anom-other-in');
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val=b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(D.anom.indexOf(val)>-1){ b.classList.add('on'); }
+  });
+  var predefinedAnom = [];
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val=b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(val && val !== '其他') predefinedAnom.push(val);
+  });
+  var customAnom = D.anom.filter(function(v){ return predefinedAnom.indexOf(v)===-1; });
+  if(customAnom.length){
+    if(otherAnomBtn) otherAnomBtn.classList.add('on');
+    otherAnomInput.style.display='block';
+    otherAnomInput.value=customAnom.join('、');
+    D._anomOther=otherAnomInput.value;
+  } else {
+    if(otherAnomBtn) otherAnomBtn.classList.remove('on');
+    otherAnomInput.style.display='none';
+    otherAnomInput.value='';
+    D._anomOther='';
+  }
+  if(D.prod){ document.getElementById('prod-in').value=D.prod; }
+  document.getElementById('qty-display').textContent=D.qty||'—';
+  document.getElementById('ratio-text-in').value=D.ratioText||'';
+  document.getElementById('bad-in').value=D.bad||'';
+  document.getElementById('samp-in').value=D.samp||'';
+  if(D.ratioText){
+    updateRatioText(D.ratioText);
+  } else {
+    updateRatio();
+  }
+  chk1();
+  chk2();
+  chk3();
+  /*
+  /*
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var oc = b.getAttribute('onclick') || '';
+    if((D.judge==='驗退X' && oc.indexOf('驗退X')>-1) ||
+       (D.judge==='特採△' && oc.indexOf('特採△')>-1) ||
+       (D.judge==='加工○' && oc.indexOf('加工○')>-1)){
+      if(D.judge==='驗退X') b.classList.add('on-red');
+      else if(D.judge==='特採△') b.classList.add('on-amber');
+      else b.classList.add('on');
+    }
+  });
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var txt = b.textContent || '';
+    if(D.judge && D.judge.indexOf('X')>-1 && txt.indexOf('X')>-1) b.classList.add('on-red');
+    if(D.judge && D.judge.indexOf('△')>-1 && txt.indexOf('△')>-1) b.classList.add('on-amber');
+    if(D.judge && D.judge.indexOf('○')>-1 && txt.indexOf('○')>-1) b.classList.add('on');
+  });
+  */
+  document.getElementById('status-other-in').value=D.status||'';
+  document.getElementById('reply-date-in').value=D.replyDate||'';
+  alert('已複製！\n發生單位：'+D.unit+'\n責任單位：'+D.resp+'\n系列別：'+D.series);
+}
+
+function go(n){
+  document.getElementById('s'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('hstep').textContent=n<=6?'步驟 '+n+' / 6':'完成！';
+  for(var i=1;i<=6;i++){
+    document.getElementById('ps'+i).className='ps'+(i===n?' active':i<n?' done':'');
+  }
+  if(n===6) buildSummary();
+  window.scrollTo(0,0);
+}
+
+function copyLastSafe(){
+  if(!lastD) return;
+
+  D.unit = lastD.unit || '';
+  D.resp = lastD.resp || '';
+  D.series = lastD.series || '';
+  D.anom = (lastD.anom || []).slice();
+  D.prod = lastD.prod || '';
+  D.judge = lastD.judge || '';
+  D.status = lastD.status || '';
+  D.replyDate = lastD.replyDate || '';
+  D.qty = lastD.qty || '';
+  D.ratioText = lastD.ratioText || '';
+  D.bad = lastD.bad || '';
+  D.samp = lastD.samp || '';
+  D._anomOther = '';
+
+  document.querySelectorAll('.sb').forEach(function(b){
+    b.classList.remove('on');
+    b.classList.remove('on-red');
+    b.classList.remove('on-amber');
+  });
+
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.unit) b.classList.add('on');
+  });
+  document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background='#f9f9f9';
+    b.style.borderColor='#ddd';
+    b.style.color='#555';
+    b.style.fontWeight='400';
+  });
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.resp) b.classList.add('on');
+  });
+  document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background='#f9f9f9';
+    b.style.borderColor='#ddd';
+    b.style.color='#555';
+    b.style.fontWeight='400';
+  });
+  document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.series) b.classList.add('on');
+  });
+
+  var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
+  var otherAnomInput = document.getElementById('anom-other-in');
+  var predefinedAnom = [];
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val = b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(val && val !== '其他') predefinedAnom.push(val);
+    if(D.anom.indexOf(val) > -1) b.classList.add('on');
+  });
+  var customAnom = D.anom.filter(function(v){ return predefinedAnom.indexOf(v) === -1; });
+  if(customAnom.length){
+    if(otherAnomBtn) otherAnomBtn.classList.add('on');
+    otherAnomInput.style.display = 'block';
+    otherAnomInput.value = customAnom.join('、');
+    D._anomOther = otherAnomInput.value;
+  } else {
+    if(otherAnomBtn) otherAnomBtn.classList.remove('on');
+    otherAnomInput.style.display = 'none';
+    otherAnomInput.value = '';
+  }
+
+  document.getElementById('prod-in').value = D.prod || '';
+  document.getElementById('qty-display').textContent = D.qty || '—';
+  document.getElementById('ratio-text-in').value = D.ratioText || '';
+  document.getElementById('bad-in').value = D.bad || '';
+  document.getElementById('samp-in').value = D.samp || '';
+  if(D.ratioText) updateRatioText(D.ratioText);
+  else updateRatio();
+
+  document.getElementById('status-other-in').value = D.status || '';
+  document.getElementById('reply-date-in').value = D.replyDate || '';
+
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var txt = b.textContent || '';
+    if(D.judge && D.judge.indexOf('X') > -1 && txt.indexOf('X') > -1) b.classList.add('on-red');
+    else if(D.judge && D.judge.indexOf('△') > -1 && txt.indexOf('△') > -1) b.classList.add('on-amber');
+    else if(D.judge && D.judge.indexOf('○') > -1 && txt.indexOf('○') > -1) b.classList.add('on');
+  });
+
+  chk1();
+  chk2();
+  chk3();
+  document.getElementById('n1').disabled = !(D.unit && D.resp);
+  document.getElementById('n2').disabled = !(D.anom.length > 0);
+  document.getElementById('n3').disabled = !(D.qty && (D.ratioText || (D.bad && D.samp)));
+
+  alert('已複製上一筆資料，可直接確認後按下一步。');
+}
+
+function copyLastSafe2(){
+  if(!lastD) return;
+
+  D.unit = lastD.unit || '';
+  D.resp = lastD.resp || '';
+  D.series = lastD.series || '';
+  D.anom = Array.isArray(lastD.anom) ? lastD.anom.slice() : [];
+  D.prod = lastD.prod || '';
+  D.judge = lastD.judge || '';
+  D.status = lastD.status || '';
+  D.replyDate = lastD.replyDate || '';
+  D.qty = lastD.qty || '';
+  D.ratioText = lastD.ratioText || '';
+  D.bad = lastD.bad || '';
+  D.samp = lastD.samp || '';
+  D._anomOther = '';
+
+  document.querySelectorAll('.sb').forEach(function(b){
+    b.classList.remove('on');
+    b.classList.remove('on-red');
+    b.classList.remove('on-amber');
+  });
+
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.unit) b.classList.add('on');
+  });
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.resp) b.classList.add('on');
+  });
+  document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.series) b.classList.add('on');
+  });
+
+  document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = '#f9f9f9';
+    b.style.borderColor = '#ddd';
+    b.style.color = '#555';
+    b.style.fontWeight = '400';
+  });
+  document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = '#f9f9f9';
+    b.style.borderColor = '#ddd';
+    b.style.color = '#555';
+    b.style.fontWeight = '400';
+  });
+
+  var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
+  var otherAnomInput = document.getElementById('anom-other-in');
+  var predefinedAnom = [];
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val = b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(val && val !== '其他') predefinedAnom.push(val);
+    if(D.anom.indexOf(val) > -1) b.classList.add('on');
+  });
+  var customAnom = D.anom.filter(function(v){ return predefinedAnom.indexOf(v) === -1; });
+  if(customAnom.length){
+    if(otherAnomBtn) otherAnomBtn.classList.add('on');
+    otherAnomInput.style.display = 'block';
+    otherAnomInput.value = customAnom.join('、');
+    D._anomOther = otherAnomInput.value;
+  } else {
+    if(otherAnomBtn) otherAnomBtn.classList.remove('on');
+    otherAnomInput.style.display = 'none';
+    otherAnomInput.value = '';
+  }
+
+  document.getElementById('prod-in').value = D.prod || '';
+  document.getElementById('qty-display').textContent = D.qty || '—';
+  document.getElementById('ratio-text-in').value = D.ratioText || '';
+  document.getElementById('bad-in').value = D.bad || '';
+  document.getElementById('samp-in').value = D.samp || '';
+  if(D.ratioText) updateRatioText(D.ratioText);
+  else updateRatio();
+
+  document.getElementById('status-other-in').value = D.status || '';
+  document.getElementById('reply-date-in').value = D.replyDate || '';
+
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var txt = b.textContent || '';
+    if(D.judge && D.judge.indexOf('X') > -1 && txt.indexOf('X') > -1) b.classList.add('on-red');
+    else if(D.judge && D.judge.indexOf('△') > -1 && txt.indexOf('△') > -1) b.classList.add('on-amber');
+    else if(D.judge && D.judge.indexOf('○') > -1 && txt.indexOf('○') > -1) b.classList.add('on');
+  });
+
+  chk1();
+  chk2();
+  chk3();
+  document.getElementById('n1').disabled = !(D.unit && D.resp);
+  document.getElementById('n2').disabled = !(D.anom.length > 0);
+  document.getElementById('n3').disabled = !(D.qty && (D.ratioText || (D.bad && D.samp)));
+
+  alert('已複製上一筆資料，可直接確認後按下一步。');
+}
+
+function copyLastSafe3(){
+  if(!lastD) return;
+
+  D.unit = lastD.unit || '';
+  D.resp = lastD.resp || '';
+  D.series = lastD.series || '';
+  D.anom = Array.isArray(lastD.anom) ? lastD.anom.slice() : [];
+  D.prod = lastD.prod || '';
+  D.judge = lastD.judge || '';
+  D.status = lastD.status || '';
+  D.replyDate = lastD.replyDate || '';
+  D.qty = lastD.qty || '';
+  D.ratioText = lastD.ratioText || '';
+  D.bad = lastD.bad || '';
+  D.samp = lastD.samp || '';
+  D._anomOther = '';
+
+  document.querySelectorAll('.sb').forEach(function(b){
+    b.classList.remove('on');
+    b.classList.remove('on-red');
+    b.classList.remove('on-amber');
+  });
+
+  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.unit) b.classList.add('on');
+  });
+  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.resp) b.classList.add('on');
+  });
+  document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){
+    if(b.textContent.trim() === D.series) b.classList.add('on');
+  });
+
+  document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = '#f9f9f9';
+    b.style.borderColor = '#ddd';
+    b.style.color = '#555';
+    b.style.fontWeight = '400';
+  });
+  document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
+    b.style.background = '#f9f9f9';
+    b.style.borderColor = '#ddd';
+    b.style.color = '#555';
+    b.style.fontWeight = '400';
+  });
+
+  var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
+  var otherAnomInput = document.getElementById('anom-other-in');
+  var predefinedAnom = [];
+  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
+    var val = b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+    if(val && val !== '其他') predefinedAnom.push(val);
+    if(D.anom.indexOf(val) > -1) b.classList.add('on');
+  });
+  var customAnom = D.anom.filter(function(v){ return predefinedAnom.indexOf(v) === -1; });
+  if(customAnom.length){
+    if(otherAnomBtn) otherAnomBtn.classList.add('on');
+    otherAnomInput.style.display = 'block';
+    otherAnomInput.value = customAnom.join('、');
+    D._anomOther = otherAnomInput.value;
+  } else {
+    if(otherAnomBtn) otherAnomBtn.classList.remove('on');
+    otherAnomInput.style.display = 'none';
+    otherAnomInput.value = '';
+  }
+
+  document.getElementById('prod-in').value = D.prod || '';
+  document.getElementById('qty-display').textContent = D.qty || '—';
+  document.getElementById('ratio-text-in').value = D.ratioText || '';
+  document.getElementById('bad-in').value = D.bad || '';
+  document.getElementById('samp-in').value = D.samp || '';
+  if(D.ratioText) updateRatioText(D.ratioText);
+  else updateRatio();
+
+  document.getElementById('status-other-in').value = D.status || '';
+  document.getElementById('reply-date-in').value = D.replyDate || '';
+
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
+    var txt = b.textContent || '';
+    if(D.judge && D.judge.indexOf('X') > -1 && txt.indexOf('X') > -1) b.classList.add('on-red');
+    else if(D.judge && D.judge.indexOf('△') > -1 && txt.indexOf('△') > -1) b.classList.add('on-amber');
+    else if(D.judge && D.judge.indexOf('○') > -1 && txt.indexOf('○') > -1) b.classList.add('on');
+  });
+
+  chk1();
+  chk2();
+  chk3();
+  document.getElementById('n1').disabled = !(D.unit && D.resp);
+  document.getElementById('n2').disabled = !(D.anom.length > 0);
+  document.getElementById('n3').disabled = !(D.qty && (D.ratioText || (D.bad && D.samp)));
+
+  alert('已複製上一筆資料，可直接確認後按下一步。');
+}
+
+function pick(btn, gridId, key){
+  var val=btn.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
+  var isOn=btn.classList.contains('on');
+  document.getElementById(gridId).querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  var inId=gridId.replace('-g','-other-in');
+  var inp=document.getElementById(inId);
+  if(inp){ inp.style.display='none'; inp.value=''; }
+  if(isOn){
+    // 取消選取
+    D[key]='';
+  } else {
+    btn.classList.add('on');
+    D[key]=val;
+  }
   if(key==='unit'||key==='resp') chk1();
 }
 
-function toggleOther(btn, gridId, key, inpId){
-  var wasOn = btn.classList.contains('on');
-  clearGroup(gridId);
-  if(!wasOn){
+function autoSeries(val){
+  var v=val.trim();
+  if(!v){ D.series=''; chk2(); return; }
+  D.series=(v.includes('系列')||v.includes('共用'))?v:v+' 系列';
+  chk2();
+}
+
+function pickSeries(btn, val){
+  var isOn=btn.classList.contains('on');
+  document.getElementById('series-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  document.getElementById('series-other-in').style.display='none';
+  document.getElementById('series-other-in').value='';
+  if(isOn){
+    D.series='';
+  } else {
     btn.classList.add('on');
-    var inp=document.getElementById(inpId);
-    inp.style.display='block'; inp.focus();
-    D[key]='';
-  } else { D[key]=''; }
+    D.series=val;
+  }
+  chk2();
+}
+
+function pickOther(btn, gridId, key, inputId){
+  document.getElementById(gridId).querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  btn.classList.add('on');
+  D[key]='';
+  var inp=document.getElementById(inputId);
+  inp.style.display='block'; inp.focus();
   if(key==='unit'||key==='resp') chk1();
 }
 
 function chk1(){ document.getElementById('n1').disabled=!(D.unit&&D.resp); }
 
-function autoSeries(v){
-  v=v.trim();
-  if(!v){ D.series=''; }
-  else if(v.indexOf('系列')>-1||v.indexOf('共用')>-1){ D.series=v; }
-  else { D.series=v+' 系列'; }
-  chk2();
-}
-
-function setPrefix(btn, prefix){
-  var wasOn = btn.classList.contains('on');
-  document.getElementById('prefix-g').querySelectorAll('.rb').forEach(function(b){ b.classList.remove('on'); });
-  if(!wasOn){ btn.classList.add('on'); D._prefix=prefix; }
-  else { D._prefix=''; }
-  updateOrderNo();
-}
-
-function updateOrderNo(){
-  var suffix = document.getElementById('order-inp').value.trim();
-  var prefix = D._prefix||'';
-  if(prefix||suffix){
-    D.orderNo=prefix+suffix;
-    var p=document.getElementById('order-preview');
-    p.style.display='block'; p.textContent='單號：'+D.orderNo;
-  } else {
-    D.orderNo='';
-    document.getElementById('order-preview').style.display='none';
-  }
-}
-
-function multiToggle(btn){
+function multi(btn){
   btn.classList.toggle('on');
-  var val=btn.textContent.trim();
+  var val=btn.textContent.trim().replace(/\n.*/,'');
   var idx=D.anom.indexOf(val);
   if(btn.classList.contains('on')){ if(idx===-1) D.anom.push(val); }
   else { if(idx>-1) D.anom.splice(idx,1); }
@@ -435,10 +860,10 @@ function multiToggle(btn){
 }
 
 function multiOther(btn){
-  var wasOn=btn.classList.contains('on');
-  btn.classList.toggle('on',!wasOn);
-  var inp=document.getElementById('anom-inp');
-  if(!wasOn){
+  var isOn=btn.classList.contains('on');
+  btn.classList.toggle('on',!isOn);
+  var inp=document.getElementById('anom-other-in');
+  if(!isOn){
     inp.style.display='block'; inp.focus();
     if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
     D._anomOther='';
@@ -449,50 +874,114 @@ function multiOther(btn){
   }
 }
 
-function updateAnomOther(v){
+function updateAnomOther(val){
   if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
-  D._anomOther=v.trim();
+  D._anomOther=val.trim();
   if(D._anomOther) D.anom.push(D._anomOther);
   chk2();
 }
 
+function setProd(v){ document.getElementById('prod-in').value=v; D.prod=v; chk2(); }
+
 function chk2(){
-  D.prod=document.getElementById('prod-inp').value.trim();
+  D.prod=document.getElementById('prod-in').value.trim();
   document.getElementById('n2').disabled=!(D.anom.length>0);
 }
 
-function qtyKey(k){ if(D.qty.length>=6) return; D.qty+=k; document.getElementById('qty-display').textContent=D.qty||'—'; chk3(); }
-function qtyBack(){ D.qty=D.qty.slice(0,-1); document.getElementById('qty-display').textContent=D.qty||'—'; chk3(); }
-function qtyClear(){ D.qty=''; document.getElementById('qty-display').textContent='—'; chk3(); }
-function qtySet(v){ D.qty=String(v); document.getElementById('qty-display').textContent=D.qty; chk3(); }
-
-function setBad(v){ D.bad=v; document.getElementById('bad-inp').value=v; D.ratioText=''; document.getElementById('ratio-text-inp').value=''; updateRatio(); }
-function setSamp(v){ D.samp=v; document.getElementById('samp-inp').value=v; D.ratioText=''; document.getElementById('ratio-text-inp').value=''; updateRatio(); }
-
-function updateRatio(){
-  var r=document.getElementById('ratio-res');
-  if(D.bad&&D.samp){ r.style.display='block'; r.textContent='不良比例：'+D.bad+' / '+D.samp; }
-  else { r.style.display='none'; }
+function qtyKey(k){
+  if(D.qty.length>=6) return;
+  D.qty=D.qty+k;
+  document.getElementById('qty-display').textContent=D.qty||'—';
   chk3();
+}
+function qtyBackspace(){ D.qty=D.qty.slice(0,-1); document.getElementById('qty-display').textContent=D.qty||'—'; chk3(); }
+function qtyClear(){ D.qty=''; document.getElementById('qty-display').textContent='—'; chk3(); }
+function qtyPreset(v){ D.qty=String(v); document.getElementById('qty-display').textContent=D.qty; chk3(); }
+
+function setPrefix(btn, prefix){
+  var isOn = btn.classList.contains('on');
+  document.getElementById('prefix-g').querySelectorAll('.rb').forEach(function(b){ b.classList.remove('on'); });
+  if(isOn){
+    D._prefix = '';
+  } else {
+    btn.classList.add('on');
+    D._prefix = prefix;
+  }
+  updateOrderNo();
+}
+
+function updateOrderNo(){
+  var suffix = document.getElementById('order-in').value.trim();
+  var prefix = D._prefix || '';
+  if(prefix || suffix){
+    D.orderNo = prefix + suffix;
+    var preview = document.getElementById('order-preview');
+    preview.style.display = 'block';
+    preview.textContent = '單號：' + D.orderNo;
+  } else {
+    D.orderNo = '';
+    document.getElementById('order-preview').style.display = 'none';
+  }
 }
 
 function updateRatioText(v){
-  D.ratioText=v.trim();
-  var r=document.getElementById('ratio-res');
+  D.ratioText = v.trim();
+  var r = document.getElementById('ratio-res');
   if(D.ratioText){
-    r.style.display='block'; r.textContent='不良比例：'+D.ratioText;
-    D.bad=''; D.samp='';
-    document.getElementById('bad-inp').value='';
-    document.getElementById('samp-inp').value='';
+    r.style.display='block';
+    r.textContent=getRatioDisplayText();
+    D.samp=''; D.bad='';
+    document.getElementById('samp-in').value='';
+    document.getElementById('bad-in').value='';
   } else {
-    if(!D.bad||!D.samp) r.style.display='none';
+    if(!D.samp || !D.bad) r.style.display='none';
   }
   chk3();
 }
 
+function setSamp(v){ D.samp=v; document.getElementById('samp-in').value=v; updateRatio(); }
+function setBad(v){ D.bad=v; document.getElementById('bad-in').value=v; updateRatio(); }
+function updateSamp(v){ D.samp=v.trim()||''; updateRatio(); }
+function updateBad(v){ D.bad=v.trim()||''; updateRatio(); }
+
+function updateRatio(){
+  var r=document.getElementById('ratio-res');
+  if(D.samp&&D.bad){
+    D.ratioText='';
+    document.getElementById('ratio-text-in').value='';
+    r.style.display='block';
+    r.textContent=getRatioDisplayText();
+  } else if(!D.ratioText) {
+    r.style.display='none';
+  }
+  chk3();
+}
+
+function getRatioValue(){
+  if(D.ratioText && D.ratioText.trim()) return D.ratioText.trim();
+  if(D.bad && D.samp) return D.bad+' / '+D.samp;
+  return '';
+}
+
+function getRatioDisplayText(){
+  if(D.ratioText && D.ratioText.trim()){
+    return '不良比例：' + D.ratioText.trim();
+  }
+  if(D.bad && D.samp){
+    var bad = Number(D.bad);
+    var samp = Number(D.samp);
+    if(Number.isFinite(bad) && Number.isFinite(samp) && samp > 0){
+      return '不良比例：' + ((bad / samp) * 100).toFixed(2) + '% (' + D.bad + ' / ' + D.samp + ')';
+    }
+    return '不良比例：' + D.bad + ' / ' + D.samp;
+  }
+  return '';
+}
+
 function chk3(){
-  var ok = D.qty && (D.ratioText || (D.bad&&D.samp));
-  document.getElementById('n3').disabled=!ok;
+  var hasRatioText = D.ratioText && D.ratioText.trim() !== '';
+  var hasRatioNum = D.samp && D.bad;
+  document.getElementById('n3').disabled=!(D.qty && (hasRatioText || hasRatioNum));
 }
 
 function handlePic(inp, num){
@@ -510,134 +999,80 @@ function handlePic(inp, num){
   }
 }
 
-function judgeToggle(btn, val, cls){
-  var wasOn=btn.classList.contains(cls);
-  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
-    b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px';
-  });
-  if(!wasOn){ btn.classList.add(cls); D.judge=val; }
-  else { D.judge=''; }
+function updateLaborCost(){
+  D.laborPeople = document.getElementById('labor-people-inp').value.trim();
+  D.laborHours  = document.getElementById('labor-hours-inp').value.trim();
+  D.adminPeople = document.getElementById('admin-people-inp').value.trim();
+  D.adminHours  = document.getElementById('admin-hours-inp').value.trim();
+  var lp=parseFloat(D.laborPeople)||0, lh=parseFloat(D.laborHours)||0;
+  var ap=parseFloat(D.adminPeople)||0, ah=parseFloat(D.adminHours)||0;
+  var cost=(lp*lh+ap*ah)*420;
+  D.laborCost=cost>0?String(cost):'';
+  var res=document.getElementById('labor-cost-result');
+  if(cost>0){ res.style.display='block'; document.getElementById('labor-cost-val').textContent=cost.toLocaleString(); }
+  else { res.style.display='none'; }
 }
 
-function setOnline(btn){
+function judgeBtn(btn, val, cls){
+  var isOn=btn.classList.contains(cls);
+  document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px'; });
+  if(isOn){
+    D.judge='';
+  } else {
+    btn.classList.add(cls);
+    D.judge=val;
+  }
+}
+
+function pickStatus(btn, val){
+  var isOn=btn.classList.contains('on');
+  document.getElementById('status-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  document.getElementById('status-other-in').style.display='none';
+  var ob=document.querySelector('#s5 .sb[onclick="pickStatusOther(this)"]');
+  if(ob) ob.className='sb';
+  if(isOn){
+    D.status='';
+  } else {
+    btn.classList.add('on');
+    D.status=val;
+  }
+}
+
+function pickStatusOther(btn){
+  document.getElementById('status-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  btn.classList.add('on');
+  D.status='';
+  var inp=document.getElementById('status-other-in');
+  inp.style.display='block'; inp.focus();
+}
+
+function setReplyOnline(btn){
   D.replyDate='上線中';
-  document.getElementById('reply-date-inp').value='';
+  document.getElementById('reply-date-in').value='';
   btn.className='sb on';
-}
-
-function go(n){
-  document.getElementById('s'+cur).classList.remove('active');
-  cur=n;
-  document.getElementById('s'+cur).classList.add('active');
-  document.getElementById('hstep').textContent=n<=6?'步驟 '+n+' / 6':'完成！';
-  for(var i=1;i<=6;i++){
-    document.getElementById('ps'+i).className='ps'+(i===n?' active':i<n?' done':'');
-  }
-  if(n===6) buildSummary();
-  window.scrollTo(0,0);
-}
-
-function copyLast(){
-  if(!lastD) return;
-  D.unit=lastD.unit||''; D.resp=lastD.resp||''; D.series=lastD.series||'';
-  D.anom=(lastD.anom||[]).slice(); D._anomOther=lastD._anomOther||'';
-  D.prod=lastD.prod||''; D.orderNo=lastD.orderNo||''; D._prefix=lastD._prefix||'';
-  D.qty=lastD.qty||''; D.bad=lastD.bad||''; D.samp=lastD.samp||''; D.ratioText=lastD.ratioText||'';
-  D.judge=lastD.judge||''; D.status=lastD.status||''; D.replyDate=lastD.replyDate||'';
-  // 更新 Step 1 畫面
-  document.getElementById('unit-g').querySelectorAll('.sb').forEach(function(b){
-    if(b.textContent.trim()===D.unit) b.classList.add('on');
-  });
-  document.getElementById('resp-g').querySelectorAll('.sb').forEach(function(b){
-    if(b.textContent.trim()===D.resp) b.classList.add('on');
-  });
-  chk1();
-  alert('已複製！資料已自動帶入。');
-}
-
-function applyStep(n){
-  if(n===2){
-    if(D.series) document.getElementById('series-inp').value=D.series;
-    if(D.orderNo){
-      document.getElementById('order-inp').value=D.orderNo.replace(D._prefix,'');
-      if(D._prefix){
-        document.getElementById('prefix-g').querySelectorAll('.rb').forEach(function(b){
-          if(b.textContent.trim()===D._prefix) b.classList.add('on');
-        });
-      }
-      var p=document.getElementById('order-preview');
-      p.style.display='block'; p.textContent='單號：'+D.orderNo;
-    }
-    document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
-      var val=b.textContent.trim();
-      if(D.anom.indexOf(val)>-1) b.classList.add('on');
-    });
-    if(D._anomOther){
-      var otherBtn=document.querySelector('#anom-g .sb:last-child');
-      if(otherBtn) otherBtn.classList.add('on');
-      var inp=document.getElementById('anom-inp');
-      inp.style.display='block'; inp.value=D._anomOther;
-    }
-    if(D.prod) document.getElementById('prod-inp').value=D.prod;
-    chk2();
-  }
-  if(n===3){
-    document.getElementById('qty-display').textContent=D.qty||'—';
-    if(D.ratioText){
-      document.getElementById('ratio-text-inp').value=D.ratioText;
-      var r=document.getElementById('ratio-res');
-      r.style.display='block'; r.textContent='不良比例：'+D.ratioText;
-    } else if(D.bad&&D.samp){
-      document.getElementById('bad-inp').value=D.bad;
-      document.getElementById('samp-inp').value=D.samp;
-      updateRatio();
-    }
-    chk3();
-  }
-  if(n===5){
-    document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){
-      b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px';
-      var txt=b.textContent;
-      if(D.judge==='驗退X'&&txt.indexOf('X')>-1) b.classList.add('on-red');
-      else if(D.judge==='特採△'&&txt.indexOf('△')>-1) b.classList.add('on-amber');
-      else if(D.judge==='加工○'&&txt.indexOf('○')>-1) b.classList.add('on');
-    });
-    if(D.status) document.getElementById('status-inp').value=D.status;
-    if(D.replyDate==='上線中'){
-      document.getElementById('online-btn').className='sb on';
-    } else if(D.replyDate){
-      document.getElementById('reply-date-inp').value=D.replyDate;
-    }
-  }
-}
-
-// Override go to apply data
-var _go = go;
-go = function(n){
-  _go(n);
-  applyStep(n);
-};
-
-function getRatio(){
-  return D.ratioText || (D.bad+' / '+D.samp);
 }
 
 function buildSummary(){
   var t=new Date();
   var d=t.getFullYear()+'/'+(t.getMonth()+1).toString().padStart(2,'0')+'/'+t.getDate().toString().padStart(2,'0');
   D._date=d;
-  var jhtml = D.judge==='驗退X'?'<span class="tag tg-red">驗退 X</span>':
-              D.judge==='特採△'?'<span class="tag tg-amber">特採 △</span>':
-              D.judge==='加工○'?'<span class="tag tg-green">加工 ○</span>':'<span style="color:#aaa">(未填)</span>';
-  var phtml = D.photo?'<span style="color:#006600">已附照片 ✓'+(D.photoData2?' (2張)':' (1張)')+'</span>':'<span style="color:#aaa">未附照片</span>';
+  var jhtml=D.judge==='驗退X'?'<span class="tag tg-red">驗退 X</span>':D.judge==='特採△'?'<span class="tag tg-amber">特採 △</span>':D.judge==='加工○'?'<span class="tag tg-green">加工 ○</span>':'<span style="color:#aaa">(未填)</span>';
+  var phtml=D.photo?'<span style="color:#006600">已附照片 ✓'+(D.photoData2?' (2張)':' (1張)')+'</span>':'<span style="color:#aaa">未附照片</span>';
   document.getElementById('stbl').innerHTML=
     row('單號','<span style="color:#aaa">送出後自動產生</span>')+
-    row('日期',d)+row('發生單位',D.unit)+row('責任單位',D.resp)+
-    row('系列別',D.series||'(未填)')+row('單號',D.orderNo||'(未填)')+
-    row('品名',D.prod||'(未填)')+row('異常狀況',D.anom.join('、'))+
-    row('訂單數量',D.qty)+row('不良比例',getRatio())+
-    row('品質判定',jhtml)+row('處理狀態',D.status||'(未填)')+
-    row('照片',phtml)+row('回覆期限',D.replyDate||'(未填)');
+    row('日期',d)+
+    row('發生單位',D.unit)+
+    row('責任單位',D.resp)+
+    row('系列別',D.series)+
+    row('品名',D.prod||'(未填)')+
+    row('客戶訂單編號',D.orderNo||'(未填)')+
+    row('異常狀況',D.anom.join('、'))+
+    row('訂單數量',D.qty)+
+    row('不良比例',getRatioValue())+
+    row('品質判定',jhtml)+
+    row('處理狀態',D.status||'(未填)')+
+    row('照片',phtml)+
+    row('回覆期限',D.replyDate||'(未填)');
 }
 
 function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
@@ -651,21 +1086,21 @@ function showErr(msg){
 function submitForm(){
   var btn=document.getElementById('n6');
   btn.disabled=true; btn.textContent='送出中...';
-  // 儲存最近紀錄
-  if(D.prod){ recentProds=recentProds.filter(function(x){return x!==D.prod;}); recentProds.unshift(D.prod); recentProds=recentProds.slice(0,8); localStorage.setItem('rp',JSON.stringify(recentProds)); }
-  if(D.unit){ recentUnits=recentUnits.filter(function(x){return x!==D.unit;}); recentUnits.unshift(D.unit); recentUnits=recentUnits.slice(0,5); localStorage.setItem('ru',JSON.stringify(recentUnits)); }
-  if(D.resp){ recentResps=recentResps.filter(function(x){return x!==D.resp;}); recentResps.unshift(D.resp); recentResps=recentResps.slice(0,5); localStorage.setItem('rr',JSON.stringify(recentResps)); }
-  // 存這筆供下次複製
-  var save={unit:D.unit,resp:D.resp,series:D.series,orderNo:D.orderNo,_prefix:D._prefix,
-    anom:D.anom.slice(),_anomOther:D._anomOther,prod:D.prod,
-    qty:D.qty,bad:D.bad,samp:D.samp,ratioText:D.ratioText,
-    judge:D.judge,status:D.status,replyDate:D.replyDate};
-  localStorage.setItem('lastD',JSON.stringify(save));
+
+  if(D.prod){ var idx=recentProds.indexOf(D.prod); if(idx>-1) recentProds.splice(idx,1); recentProds.unshift(D.prod); recentProds=recentProds.slice(0,8); localStorage.setItem('recentProds',JSON.stringify(recentProds)); }
+  if(D.unit){ var ui=recentUnits.indexOf(D.unit); if(ui>-1) recentUnits.splice(ui,1); recentUnits.unshift(D.unit); recentUnits=recentUnits.slice(0,5); localStorage.setItem('recentUnits',JSON.stringify(recentUnits)); }
+  if(D.resp){ var ri=recentResps.indexOf(D.resp); if(ri>-1) recentResps.splice(ri,1); recentResps.unshift(D.resp); recentResps=recentResps.slice(0,5); localStorage.setItem('recentResps',JSON.stringify(recentResps)); }
+
+  // 存這一筆供下次複製
+  var saveD={unit:D.unit,resp:D.resp,series:D.series,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate,qty:D.qty,ratioText:D.ratioText,bad:D.bad,samp:D.samp};
+  localStorage.setItem('lastD',JSON.stringify(saveD));
 
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
-    orderNo:D.orderNo, product:D.prod, anomaly:D.anom.join('、'),
-    qty:D.qty, ratio:getRatio(),
+    product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
+    qty:D.qty, ratio:getRatioValue(), ratioText:D.ratioText||'', bad:D.bad||'', samp:D.samp||'',
+    laborPeople:D.laborPeople, laborHours:D.laborHours,
+    adminPeople:D.adminPeople, adminHours:D.adminHours, laborCost:D.laborCost,
     judge:D.judge, status:D.status, replyDate:D.replyDate,
     photoData:D.photoData, photoData2:D.photoData2, userId:userId
   };
@@ -676,14 +1111,14 @@ function submitForm(){
   }).then(function(r){ return r.json(); })
   .then(function(res){
     if(res.success){
-      _go(7);
+      go(7);
       document.getElementById('dnum').textContent=res.number||'';
       document.getElementById('nbox').innerHTML=
         '<b>回報人：</b>'+(res.reporter||'(未知)')+'<br>'+
-        '<b>系列別：</b>'+(D.series||'(未填)')+'<br>'+
+        '<b>系列別：</b>'+D.series+'<br>'+
         '<b>品名：</b>'+(D.prod||'(未填)')+'<br>'+
         '<b>異常：</b>'+D.anom.join('、')+'<br>'+
-        '<b>比例：</b>'+getRatio()+'<br>'+
+        '<b>比例：</b>'+(getRatioValue()||'(未填)')+'<br>'+
         '<b>判定：</b>'+(D.judge||'(未填)')+
         (D.status?'<br><b>處理狀態：</b>'+D.status:'')+
         (D.replyDate?'<br><b>回覆期限：</b>'+D.replyDate:'');
