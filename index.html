@@ -124,7 +124,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 2 -->
 <div class="step" id="s2">
   <div class="card">
-    <div class="card-title">槍型號</div>
+    <div class="card-title">槍型號(必填)</div>
     <input class="tinput" id="series-other-in" placeholder="輸入型號數字，例如：305、321、111" oninput="autoSeries(this.value)">
     <div class="hint">輸入型號數字</div>
   </div>
@@ -586,7 +586,7 @@ function setProd(v){ document.getElementById('prod-in').value=v; D.prod=v; chk2(
 
 function chk2(){
   D.prod=document.getElementById('prod-in').value.trim();
-  document.getElementById('n2').disabled=!(D.anom.length>0);
+  document.getElementById('n2').disabled=!(D.anom.length>0 && D.series);
 }
 
 function qtyKey(k){
