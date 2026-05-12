@@ -350,9 +350,12 @@ var lastD = JSON.parse(localStorage.getItem('lastD') || 'null');
 
 liff.init({liffId: LIFF_ID}).then(function(){
   if(liff.isLoggedIn()){
-    liff.getProfile().then(function(p){ userId = p.userId; });
+    liff.getProfile().then(function(p){
+      userId = p.userId;
+      console.log('LIFF userId:', userId);
+    }).catch(function(e){ console.log('getProfile failed:', e); });
   } else { liff.login(); }
-}).catch(function(){ console.log('LIFF init failed'); });
+}).catch(function(e){ console.log('LIFF init failed:', e); });
 
 renderRecent();
 renderUnitRecent();
@@ -748,9 +751,20 @@ function showErr(msg){
   setTimeout(function(){ e.style.display='none'; },5000);
 }
 
-function submitForm(){
+async function submitForm(){
   var btn=document.getElementById('n6');
   btn.disabled=true; btn.textContent='送出中...';
+
+  // 送出前再確認 userId
+  if (!userId) {
+    try {
+      if (liff.isLoggedIn()) {
+        var profile = await liff.getProfile();
+        userId = profile.userId;
+        console.log('Retry userId:', userId);
+      }
+    } catch(e) { console.log('getProfile retry failed:', e); }
+  }
 
   if(D.prod){ var idx=recentProds.indexOf(D.prod); if(idx>-1) recentProds.splice(idx,1); recentProds.unshift(D.prod); recentProds=recentProds.slice(0,8); localStorage.setItem('recentProds',JSON.stringify(recentProds)); }
   if(D.unit){ var ui=recentUnits.indexOf(D.unit); if(ui>-1) recentUnits.splice(ui,1); recentUnits.unshift(D.unit); recentUnits=recentUnits.slice(0,5); localStorage.setItem('recentUnits',JSON.stringify(recentUnits)); }
