@@ -52,7 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .ratio-label{font-size:12px;color:#888;margin-bottom:6px;font-weight:600;}
 .ratio-div{font-size:28px;color:#bbb;padding-top:12px;}
 .stbl{width:100%;font-size:14px;border-collapse:collapse;}
-.stbl td{padding:8px 0;border-bottom:0.5px solid #f0f0f0;vertical-align:top;}
+.stbl td{padding:8px 0;border-bottom:0.5px solid #f0f0f0;vertical-top:top;}
 .stbl .lb{color:#888;width:85px;font-size:13px;}
 .stbl .vl{color:#222;font-weight:600;}
 .tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;}
@@ -265,25 +265,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="skip" onclick="D.photo=false;D.photoData=null;D.photoData2=null;document.getElementById('n4').disabled=false;go(5)">沒有照片，先跳過</div>
 </div>
 
-<!-- Step 5 -->
+<!-- Step 5 ★ 修改：inputmode="decimal" step="any" 支援小數 -->
 <div class="step" id="s5">
   <div class="card">
     <div class="card-title">所耗工時 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
     <div style="margin-bottom:12px;">
       <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:8px;">人工成本</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input class="tinput" id="labor-people-inp" type="number" inputmode="numeric" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.laborPeople=this.value.trim()">
+        <input class="tinput" id="labor-people-inp" type="number" inputmode="decimal" step="any" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.laborPeople=this.value.trim()">
         <span style="color:#555;font-size:14px;white-space:nowrap;">人 ×</span>
-        <input class="tinput" id="labor-hours-inp" type="number" inputmode="numeric" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.laborHours=this.value.trim()">
+        <input class="tinput" id="labor-hours-inp" type="number" inputmode="decimal" step="any" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.laborHours=this.value.trim()">
         <span style="color:#555;font-size:14px;white-space:nowrap;">小時</span>
       </div>
     </div>
     <div>
       <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:8px;">行政成本</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input class="tinput" id="admin-people-inp" type="number" inputmode="numeric" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.adminPeople=this.value.trim()">
+        <input class="tinput" id="admin-people-inp" type="number" inputmode="decimal" step="any" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.adminPeople=this.value.trim()">
         <span style="color:#555;font-size:14px;white-space:nowrap;">人 ×</span>
-        <input class="tinput" id="admin-hours-inp" type="number" inputmode="numeric" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.adminHours=this.value.trim()">
+        <input class="tinput" id="admin-hours-inp" type="number" inputmode="decimal" step="any" placeholder="0" style="text-align:center;font-size:18px;margin-bottom:0;flex:1;" oninput="D.adminHours=this.value.trim()">
         <span style="color:#555;font-size:14px;white-space:nowrap;">小時</span>
       </div>
     </div>
@@ -773,12 +773,13 @@ async function submitForm(){
   var saveD={unit:D.unit,resp:D.resp,series:D.series,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate,qty:D.qty,ratioText:D.ratioText,bad:D.bad,samp:D.samp};
   localStorage.setItem('lastD',JSON.stringify(saveD));
 
+  // ★ 修改：沒填的工時欄位預設送 '0'，避免 Excel 公式跳錯
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
     product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
     qty:D.qty, ratio:getRatioValue(), ratioText:D.ratioText||'', bad:D.bad||'', samp:D.samp||'',
-    laborPeople:D.laborPeople, laborHours:D.laborHours,
-    adminPeople:D.adminPeople, adminHours:D.adminHours, laborCost:D.laborCost,
+    laborPeople:D.laborPeople||'0', laborHours:D.laborHours||'0',
+    adminPeople:D.adminPeople||'0', adminHours:D.adminHours||'0', laborCost:D.laborCost,
     judge:D.judge, status:D.status, replyDate:D.replyDate,
     photoData:D.photoData, photoData2:D.photoData2, userId:userId
   };
