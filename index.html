@@ -156,11 +156,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <button class="sb" onclick="pickAnomCat(this)">功能異常</button>
       <button class="sb" onclick="pickAnomCatOther(this)">✏️ 其他</button>
     </div>
-    <input class="tinput" id="anomcat-other-in" placeholder="請輸入異常分類說明" style="display:none;margin-top:8px;" oninput="D.anomCat=this.value.trim();chk2()">
-    <div class="hint">選「其他」請在下一欄異常狀況詳細說明</div>
+    <input class="tinput" id="anomcat-other-in" placeholder="請填寫異常分類" style="display:none;margin-top:8px;" oninput="D.anomCat=this.value.trim();chk2()">
+    <div class="hint">選「其他」請填寫異常分類</div>
   </div>
   <div class="card">
-    <div class="card-title">異常狀況（可多選）</div>
+    <div class="card-title">異常狀況（請詳細說明，可多選）</div>
     <div class="g2" id="anom-g">
       <button class="sb" onclick="multi(this)">外觀不良</button>
       <button class="sb" onclick="multi(this)">尺寸異常</button>
