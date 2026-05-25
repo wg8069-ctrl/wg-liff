@@ -21,6 +21,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .card{background:#fff;margin:12px;border-radius:14px;padding:16px;border:0.5px solid #e8e8e8;}
 .card+.card{margin-top:0;}
 .card-title{font-size:13px;color:#555;margin-bottom:12px;font-weight:600;}
+.card-title .req{color:#e24b4a;font-size:12px;margin-left:4px;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;}
@@ -142,6 +143,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     </div>
     <input class="tinput" id="order-in" placeholder="輸入後面的號碼" oninput="updateOrderNo()">
     <div id="order-preview" style="background:#f0fff0;border:1px solid #00b900;border-radius:8px;padding:8px 12px;font-size:15px;color:#006600;font-weight:600;margin-top:6px;display:none;"></div>
+  </div>
+  <!-- ★ 新增：異常分類（必填）★ -->
+  <div class="card">
+    <div class="card-title">異常分類<span class="req">＊必填</span></div>
+    <div class="g2" id="anomcat-g">
+      <button class="sb" onclick="pickAnomCat(this)">外觀不良</button>
+      <button class="sb" onclick="pickAnomCat(this)">來料不足</button>
+      <button class="sb" onclick="pickAnomCat(this)">尺寸異常</button>
+      <button class="sb" onclick="pickAnomCat(this)">混料</button>
+      <button class="sb" onclick="pickAnomCat(this)">外箱/貼紙印刷錯誤</button>
+      <button class="sb" onclick="pickAnomCat(this)">功能異常</button>
+      <button class="sb" onclick="pickAnomCatOther(this)">✏️ 其他</button>
+    </div>
+    <input class="tinput" id="anomcat-other-in" placeholder="請輸入異常分類說明" style="display:none;margin-top:8px;" oninput="D.anomCat=this.value.trim();chk2()">
+    <div class="hint">選「其他」請在下一欄異常狀況詳細說明</div>
   </div>
   <div class="card">
     <div class="card-title">異常狀況（可多選）</div>
@@ -265,7 +281,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="skip" onclick="D.photo=false;D.photoData=null;D.photoData2=null;document.getElementById('n4').disabled=false;go(5)">沒有照片，先跳過</div>
 </div>
 
-<!-- Step 5 ★ 修改：inputmode="decimal" step="any" 支援小數 -->
+<!-- Step 5 -->
 <div class="step" id="s5">
   <div class="card">
     <div class="card-title">所耗工時 <span style="color:#aaa;font-size:11px;font-weight:400">（選填）</span></div>
@@ -340,7 +356,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
-var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',ratioText:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,laborPeople:'',laborHours:'',adminPeople:'',adminHours:'',laborCost:'',judge:'',status:'',replyDate:''};
+var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',ratioText:'',anomCat:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,laborPeople:'',laborHours:'',adminPeople:'',adminHours:'',laborCost:'',judge:'',status:'',replyDate:''};
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
@@ -422,6 +438,7 @@ function copyLastSafe3(){
   D.unit = lastD.unit || '';
   D.resp = lastD.resp || '';
   D.series = lastD.series || '';
+  D.anomCat = lastD.anomCat || '';
   D.anom = Array.isArray(lastD.anom) ? lastD.anom.slice() : [];
   D.prod = lastD.prod || '';
   D.judge = lastD.judge || '';
@@ -447,17 +464,25 @@ function copyLastSafe3(){
   });
 
   document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
-    b.style.background = '#f9f9f9';
-    b.style.borderColor = '#ddd';
-    b.style.color = '#555';
-    b.style.fontWeight = '400';
+    b.style.background = '#f9f9f9'; b.style.borderColor = '#ddd';
+    b.style.color = '#555'; b.style.fontWeight = '400';
   });
   document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
-    b.style.background = '#f9f9f9';
-    b.style.borderColor = '#ddd';
-    b.style.color = '#555';
-    b.style.fontWeight = '400';
+    b.style.background = '#f9f9f9'; b.style.borderColor = '#ddd';
+    b.style.color = '#555'; b.style.fontWeight = '400';
   });
+
+  // 異常分類還原
+  document.getElementById('anomcat-g').querySelectorAll('.sb').forEach(function(b){
+    var val = b.textContent.trim().replace(/✏️\s*/,'');
+    if(val === D.anomCat) b.classList.add('on');
+  });
+  if(D.anomCat && !document.querySelector('#anomcat-g .sb.on')){
+    var otherBtn = document.querySelector('#anomcat-g .sb[onclick*="pickAnomCatOther"]');
+    if(otherBtn) otherBtn.classList.add('on');
+    var inp = document.getElementById('anomcat-other-in');
+    inp.style.display='block'; inp.value=D.anomCat;
+  }
 
   var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
   var otherAnomInput = document.getElementById('anom-other-in');
@@ -498,11 +523,9 @@ function copyLastSafe3(){
     else if(D.judge && D.judge.indexOf('○') > -1 && txt.indexOf('○') > -1) b.classList.add('on');
   });
 
-  chk1();
-  chk2();
-  chk3();
+  chk1(); chk2(); chk3();
   document.getElementById('n1').disabled = !(D.unit && D.resp);
-  document.getElementById('n2').disabled = !(D.anom.length > 0);
+  document.getElementById('n2').disabled = !(D.anom.length > 0 && D.series && D.anomCat);
   document.getElementById('n3').disabled = !(D.qty && (D.ratioText || (D.bad && D.samp)));
 
   alert('已複製上一筆資料，可直接確認後按下一步。');
@@ -554,6 +577,31 @@ function pickOther(btn, gridId, key, inputId){
 
 function chk1(){ document.getElementById('n1').disabled=!(D.unit&&D.resp); }
 
+// ★ 異常分類選取 ★
+function pickAnomCat(btn){
+  var val=btn.textContent.trim();
+  var isOn=btn.classList.contains('on');
+  document.getElementById('anomcat-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  document.getElementById('anomcat-other-in').style.display='none';
+  document.getElementById('anomcat-other-in').value='';
+  if(isOn){
+    D.anomCat='';
+  } else {
+    btn.classList.add('on');
+    D.anomCat=val;
+  }
+  chk2();
+}
+
+function pickAnomCatOther(btn){
+  document.getElementById('anomcat-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; });
+  btn.classList.add('on');
+  D.anomCat='';
+  var inp=document.getElementById('anomcat-other-in');
+  inp.style.display='block'; inp.focus();
+  chk2();
+}
+
 function multi(btn){
   btn.classList.toggle('on');
   var val=btn.textContent.trim().replace(/\n.*/,'');
@@ -589,7 +637,7 @@ function setProd(v){ document.getElementById('prod-in').value=v; D.prod=v; chk2(
 
 function chk2(){
   D.prod=document.getElementById('prod-in').value.trim();
-  document.getElementById('n2').disabled=!(D.anom.length>0 && D.series);
+  document.getElementById('n2').disabled=!(D.anom.length>0 && D.series && D.anomCat);
 }
 
 function qtyKey(k){
@@ -732,6 +780,7 @@ function buildSummary(){
     row('發生單位',D.unit)+
     row('責任單位',D.resp)+
     row('槍型號',D.series)+
+    row('異常分類','<span style="color:#1a73e8;font-weight:700">'+esc(D.anomCat)+'</span>')+
     row('品名',D.prod||'(未填)')+
     row('客戶訂單編號',D.orderNo||'(未填)')+
     row('異常狀況',D.anom.join('、'))+
@@ -744,6 +793,7 @@ function buildSummary(){
 }
 
 function row(l,v){ return '<tr><td class="lb">'+l+'</td><td class="vl">'+v+'</td></tr>'; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function showErr(msg){
   var e=document.getElementById('errmsg');
@@ -755,7 +805,6 @@ async function submitForm(){
   var btn=document.getElementById('n6');
   btn.disabled=true; btn.textContent='送出中...';
 
-  // 送出前再確認 userId
   if (!userId) {
     try {
       if (liff.isLoggedIn()) {
@@ -770,12 +819,12 @@ async function submitForm(){
   if(D.unit){ var ui=recentUnits.indexOf(D.unit); if(ui>-1) recentUnits.splice(ui,1); recentUnits.unshift(D.unit); recentUnits=recentUnits.slice(0,5); localStorage.setItem('recentUnits',JSON.stringify(recentUnits)); }
   if(D.resp){ var ri=recentResps.indexOf(D.resp); if(ri>-1) recentResps.splice(ri,1); recentResps.unshift(D.resp); recentResps=recentResps.slice(0,5); localStorage.setItem('recentResps',JSON.stringify(recentResps)); }
 
-  var saveD={unit:D.unit,resp:D.resp,series:D.series,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate,qty:D.qty,ratioText:D.ratioText,bad:D.bad,samp:D.samp};
+  var saveD={unit:D.unit,resp:D.resp,series:D.series,anomCat:D.anomCat,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate,qty:D.qty,ratioText:D.ratioText,bad:D.bad,samp:D.samp};
   localStorage.setItem('lastD',JSON.stringify(saveD));
 
-  // ★ 修改：沒填的工時欄位預設送 '0'，避免 Excel 公式跳錯
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
+    anomCat:D.anomCat,
     product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
     qty:D.qty, ratio:getRatioValue(), ratioText:D.ratioText||'', bad:D.bad||'', samp:D.samp||'',
     laborPeople:D.laborPeople||'0', laborHours:D.laborHours||'0',
@@ -795,6 +844,7 @@ async function submitForm(){
       document.getElementById('nbox').innerHTML=
         '<b>回報人：</b>'+(res.reporter||'(未知)')+'<br>'+
         '<b>槍型號：</b>'+D.series+'<br>'+
+        '<b>異常分類：</b>'+D.anomCat+'<br>'+
         '<b>品名：</b>'+(D.prod||'(未填)')+'<br>'+
         '<b>異常：</b>'+D.anom.join('、')+'<br>'+
         '<b>比例：</b>'+(getRatioValue()||'(未填)')+'<br>'+
