@@ -68,6 +68,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .nbox{background:#f0fff0;border:1px solid #c8ecc8;border-radius:12px;padding:14px;margin-top:20px;font-size:14px;color:#444;text-align:left;line-height:1.8;}
 .err{background:#ffeaea;border:1px solid #e24b4a;border-radius:10px;padding:12px;margin:12px;font-size:14px;color:#a32d2d;display:none;}
 .copy-btn{width:100%;padding:12px;background:#fff;border:1.5px dashed #00b900;border-radius:12px;color:#006600;font-size:14px;cursor:pointer;margin:12px 0 0;-webkit-tap-highlight-color:transparent;}
+.anno-tool{background:#444;color:#fff;border:1.5px solid #555;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;}
+.anno-tool.active{background:#00b900;border-color:#00b900;color:#fff;font-weight:600;}
+.anno-text-input{position:absolute;background:rgba(0,0,0,.7);color:#fff;border:2px solid #ff0;border-radius:8px;padding:8px 10px;font-size:16px;outline:none;min-width:120px;z-index:210;}
 </style>
 </head>
 <body>
@@ -249,7 +252,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <!-- Step 4 -->
 <div class="step" id="s4">
   <div class="card">
-    <div class="card-title">異常照片（最多 2 張）</div>
+    <div class="card-title">異常照片（最多 2 張，可標註）</div>
+    <!-- 照片 1 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera1').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 1 張</span></button>
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery1').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 1 張</span></button>
@@ -257,6 +261,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input type="file" id="pf-camera1" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,1)">
     <input type="file" id="pf-gallery1" accept="image/*" style="display:none" onchange="handlePic(this,1)">
     <img id="pp1" style="width:100%;border-radius:8px;margin-top:6px;display:none;max-height:200px;object-fit:cover;">
+    <button class="sb" id="edit-btn-1" style="display:none;margin-top:6px;width:100%;background:#fff3e0;border-color:#e37400;color:#e37400;" onclick="openEditor(1)">✏️ 標註照片 1</button>
+    <!-- 照片 2 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;margin-bottom:8px;">
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera2').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery2').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
@@ -264,12 +270,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input type="file" id="pf-camera2" accept="image/*" capture="environment" style="display:none" onchange="handlePic(this,2)">
     <input type="file" id="pf-gallery2" accept="image/*" style="display:none" onchange="handlePic(this,2)">
     <img id="pp2" style="width:100%;border-radius:8px;margin-top:6px;display:none;max-height:200px;object-fit:cover;">
+    <button class="sb" id="edit-btn-2" style="display:none;margin-top:6px;width:100%;background:#fff3e0;border-color:#e37400;color:#e37400;" onclick="openEditor(2)">✏️ 標註照片 2</button>
   </div>
   <div class="nav">
     <button class="btn-back" onclick="go(3)">← 返回</button>
     <button class="btn-next" id="n4" onclick="go(5)" disabled>下一步 →</button>
   </div>
   <div class="skip" onclick="D.photo=false;D.photoData=null;D.photoData2=null;document.getElementById('n4').disabled=false;go(5)">沒有照片，先跳過</div>
+</div>
+
+<!-- ★ 照片標註編輯器 (全螢幕 overlay) ★ -->
+<div id="anno-overlay" style="position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;">
+  <!-- 工具列 -->
+  <div id="anno-toolbar" style="background:#222;padding:8px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
+    <button class="anno-tool active" id="at-pen" onclick="setAnnoTool('pen')" style="font-size:16px;">✏️ 畫筆</button>
+    <button class="anno-tool" id="at-arrow" onclick="setAnnoTool('arrow')" style="font-size:16px;">➡️ 箭頭</button>
+    <button class="anno-tool" id="at-text" onclick="setAnnoTool('text')" style="font-size:16px;">💬 文字</button>
+    <span style="width:1px;height:24px;background:#555;margin:0 4px;"></span>
+    <input type="color" id="anno-color" value="#ff0000" style="width:32px;height:32px;border:none;padding:0;cursor:pointer;border-radius:6px;">
+    <select id="anno-size" style="padding:6px;border-radius:6px;border:1px solid #555;background:#333;color:#fff;font-size:13px;">
+      <option value="2">細</option>
+      <option value="4" selected>中</option>
+      <option value="8">粗</option>
+    </select>
+    <span style="flex:1;"></span>
+    <button onclick="annoUndo()" style="background:#555;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;">↩ 復原</button>
+    <button onclick="annoClear()" style="background:#c62828;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;">🗑 清除</button>
+  </div>
+  <!-- Canvas 容器 -->
+  <div id="anno-canvas-wrap" style="flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:#111;">
+    <canvas id="anno-canvas" style="max-width:100%;max-height:100%;touch-action:none;"></canvas>
+  </div>
+  <!-- 底部按鈕 -->
+  <div style="background:#222;padding:10px;display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="annoCancel()" style="flex:1;background:#555;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;">取消</button>
+    <button onclick="annoSave()" style="flex:2;background:#00b900;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;">✓ 完成標註</button>
+  </div>
 </div>
 
 <!-- Step 5 -->
@@ -686,12 +722,273 @@ function handlePic(inp, num){
       var pp=document.getElementById('pp'+num);
       pp.src=e.target.result; pp.style.display='block';
       D.photo=true;
-      if(num===1) D.photoData=e.target.result;
-      if(num===2) D.photoData2=e.target.result;
+      if(num===1){ D.photoData=e.target.result; D._origPhoto1=e.target.result; }
+      if(num===2){ D.photoData2=e.target.result; D._origPhoto2=e.target.result; }
+      document.getElementById('edit-btn-'+num).style.display='block';
       document.getElementById('n4').disabled=false;
     };
     reader.readAsDataURL(inp.files[0]);
   }
+}
+
+// ══════════════════════════════════════
+//  照片標註編輯器
+// ══════════════════════════════════════
+var annoState = {
+  editingNum: 0,
+  tool: 'pen',    // pen | arrow | text
+  drawing: false,
+  actions: [],    // {type, data}
+  startX: 0, startY: 0,
+  baseImage: null,
+  canvas: null, ctx: null,
+  scaleX: 1, scaleY: 1
+};
+
+function openEditor(num){
+  annoState.editingNum = num;
+  annoState.actions = [];
+  annoState.tool = 'pen';
+  setAnnoTool('pen');
+  var src = (num===1) ? D._origPhoto1 : D._origPhoto2;
+  if(!src) return;
+
+  var overlay = document.getElementById('anno-overlay');
+  overlay.style.display = 'flex';
+
+  var img = new Image();
+  img.onload = function(){
+    var canvas = document.getElementById('anno-canvas');
+    var wrap = document.getElementById('anno-canvas-wrap');
+    var ww = wrap.clientWidth;
+    var wh = wrap.clientHeight;
+
+    // 計算適合的顯示尺寸
+    var ratio = Math.min(ww / img.width, wh / img.height, 1);
+    var dispW = Math.floor(img.width * ratio);
+    var dispH = Math.floor(img.height * ratio);
+
+    // canvas 內部解析度 = 原圖尺寸（高品質輸出）
+    canvas.width = img.width;
+    canvas.height = img.height;
+    // 顯示尺寸
+    canvas.style.width = dispW + 'px';
+    canvas.style.height = dispH + 'px';
+
+    annoState.canvas = canvas;
+    annoState.ctx = canvas.getContext('2d');
+    annoState.baseImage = img;
+    annoState.scaleX = img.width / dispW;
+    annoState.scaleY = img.height / dispH;
+
+    redrawAnno();
+    bindCanvasEvents();
+  };
+  img.src = src;
+}
+
+function getAnnoPos(e){
+  var canvas = annoState.canvas;
+  var rect = canvas.getBoundingClientRect();
+  var clientX, clientY;
+  if(e.touches && e.touches.length > 0){
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else if(e.changedTouches && e.changedTouches.length > 0){
+    clientX = e.changedTouches[0].clientX;
+    clientY = e.changedTouches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+  return {
+    x: (clientX - rect.left) * annoState.scaleX,
+    y: (clientY - rect.top) * annoState.scaleY
+  };
+}
+
+function bindCanvasEvents(){
+  var canvas = annoState.canvas;
+  // 移除舊事件
+  canvas.onpointerdown = null;
+  canvas.onpointermove = null;
+  canvas.onpointerup = null;
+
+  canvas.onpointerdown = function(e){
+    e.preventDefault();
+    var pos = getAnnoPos(e);
+    var color = document.getElementById('anno-color').value;
+    var size = parseInt(document.getElementById('anno-size').value);
+
+    if(annoState.tool === 'pen'){
+      annoState.drawing = true;
+      var penAction = {type:'pen', color:color, size:size, points:[{x:pos.x,y:pos.y}]};
+      annoState.actions.push(penAction);
+    } else if(annoState.tool === 'arrow'){
+      annoState.drawing = true;
+      annoState.startX = pos.x;
+      annoState.startY = pos.y;
+    } else if(annoState.tool === 'text'){
+      showTextInput(pos.x, pos.y, color, size);
+    }
+  };
+
+  canvas.onpointermove = function(e){
+    e.preventDefault();
+    if(!annoState.drawing) return;
+    var pos = getAnnoPos(e);
+
+    if(annoState.tool === 'pen'){
+      var last = annoState.actions[annoState.actions.length - 1];
+      if(last && last.type === 'pen'){
+        last.points.push({x:pos.x, y:pos.y});
+        redrawAnno();
+      }
+    } else if(annoState.tool === 'arrow'){
+      // 即時預覽箭頭
+      redrawAnno();
+      drawArrow(annoState.ctx, annoState.startX, annoState.startY, pos.x, pos.y,
+        document.getElementById('anno-color').value,
+        parseInt(document.getElementById('anno-size').value));
+    }
+  };
+
+  canvas.onpointerup = function(e){
+    e.preventDefault();
+    if(!annoState.drawing) return;
+    annoState.drawing = false;
+    var pos = getAnnoPos(e);
+
+    if(annoState.tool === 'arrow'){
+      var color = document.getElementById('anno-color').value;
+      var size = parseInt(document.getElementById('anno-size').value);
+      annoState.actions.push({type:'arrow', color:color, size:size,
+        x1:annoState.startX, y1:annoState.startY, x2:pos.x, y2:pos.y});
+      redrawAnno();
+    }
+  };
+}
+
+function showTextInput(x, y, color, size){
+  var wrap = document.getElementById('anno-canvas-wrap');
+  var canvas = annoState.canvas;
+  var rect = canvas.getBoundingClientRect();
+  var displayX = x / annoState.scaleX + (rect.left - wrap.getBoundingClientRect().left);
+  var displayY = y / annoState.scaleY + (rect.top - wrap.getBoundingClientRect().top);
+
+  var inp = document.createElement('input');
+  inp.className = 'anno-text-input';
+  inp.type = 'text';
+  inp.placeholder = '輸入文字';
+  inp.style.left = displayX + 'px';
+  inp.style.top = displayY + 'px';
+  inp.style.color = color;
+  wrap.appendChild(inp);
+  inp.focus();
+
+  var done = function(){
+    var val = inp.value.trim();
+    if(val){
+      var fontSize = Math.max(16, size * 6);
+      annoState.actions.push({type:'text', text:val, x:x, y:y, color:color, fontSize:fontSize});
+      redrawAnno();
+    }
+    if(inp.parentNode) inp.parentNode.removeChild(inp);
+  };
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter') done(); });
+  inp.addEventListener('blur', done);
+}
+
+function redrawAnno(){
+  var ctx = annoState.ctx;
+  var img = annoState.baseImage;
+  if(!ctx || !img) return;
+  ctx.clearRect(0, 0, annoState.canvas.width, annoState.canvas.height);
+  ctx.drawImage(img, 0, 0);
+
+  annoState.actions.forEach(function(a){
+    if(a.type === 'pen' && a.points.length > 1){
+      ctx.strokeStyle = a.color;
+      ctx.lineWidth = a.size;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(a.points[0].x, a.points[0].y);
+      for(var i=1;i<a.points.length;i++) ctx.lineTo(a.points[i].x, a.points[i].y);
+      ctx.stroke();
+    } else if(a.type === 'arrow'){
+      drawArrow(ctx, a.x1, a.y1, a.x2, a.y2, a.color, a.size);
+    } else if(a.type === 'text'){
+      ctx.fillStyle = a.color;
+      ctx.font = 'bold ' + a.fontSize + 'px sans-serif';
+      // 文字背景
+      var metrics = ctx.measureText(a.text);
+      var pad = 4;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(a.x - pad, a.y - a.fontSize - pad, metrics.width + pad*2, a.fontSize + pad*2);
+      ctx.fillStyle = a.color;
+      ctx.fillText(a.text, a.x, a.y);
+    }
+  });
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color, size){
+  var headLen = Math.max(15, size * 5);
+  var angle = Math.atan2(y2 - y1, x2 - x1);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = size;
+  ctx.lineCap = 'round';
+  // 線段
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  // 箭頭
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI/6), y2 - headLen * Math.sin(angle - Math.PI/6));
+  ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI/6), y2 - headLen * Math.sin(angle + Math.PI/6));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function setAnnoTool(tool){
+  annoState.tool = tool;
+  document.querySelectorAll('.anno-tool').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('at-' + tool);
+  if(el) el.classList.add('active');
+}
+
+function annoUndo(){
+  annoState.actions.pop();
+  redrawAnno();
+}
+
+function annoClear(){
+  annoState.actions = [];
+  redrawAnno();
+}
+
+function annoCancel(){
+  document.getElementById('anno-overlay').style.display = 'none';
+  // 移除殘留的文字輸入框
+  document.querySelectorAll('.anno-text-input').forEach(function(el){ el.remove(); });
+}
+
+function annoSave(){
+  var canvas = annoState.canvas;
+  var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  var num = annoState.editingNum;
+  if(num === 1){
+    D.photoData = dataUrl;
+    document.getElementById('pp1').src = dataUrl;
+  } else {
+    D.photoData2 = dataUrl;
+    document.getElementById('pp2').src = dataUrl;
+  }
+  document.getElementById('anno-overlay').style.display = 'none';
+  document.querySelectorAll('.anno-text-input').forEach(function(el){ el.remove(); });
 }
 
 function judgeBtn(btn, val, cls){
