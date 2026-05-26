@@ -160,17 +160,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="hint">選「其他」請填寫異常分類</div>
   </div>
   <div class="card">
-    <div class="card-title">異常狀況（請詳細說明，可多選）</div>
-    <div class="g2" id="anom-g">
-      <button class="sb" onclick="multi(this)">外觀不良</button>
-      <button class="sb" onclick="multi(this)">尺寸異常</button>
-      <button class="sb" onclick="multi(this)">功能異常</button>
-      <button class="sb" onclick="multi(this)">來料不足</button>
-      <button class="sb" onclick="multi(this)">未附六面圖</button>
-      <button class="sb" onclick="multi(this)">標示錯誤</button>
-      <button class="sb" onclick="multiOther(this)">✏️ 其他</button>
-    </div>
-    <input class="tinput" id="anom-other-in" placeholder="請輸入異常狀況說明" style="display:none;margin-top:8px;" oninput="updateAnomOther(this.value)">
+    <div class="card-title">異常狀況<span class="req">＊必填</span> <span style="color:#aaa;font-size:11px;font-weight:400">（請詳細說明）</span></div>
+    <textarea class="tinput" id="anom-text-in" placeholder="請輸入異常狀況詳細說明" style="min-height:96px;resize:vertical;font-size:15px;line-height:1.6;" oninput="D.anomText=this.value.trim();chk2()"></textarea>
   </div>
   <div class="card">
     <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
@@ -356,7 +347,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 var API_URL = 'https://winqc.onrender.com';
 var LIFF_ID = '2009600334-UpN6esDu';
 
-var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',ratioText:'',anomCat:'',anom:[],prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,laborPeople:'',laborHours:'',adminPeople:'',adminHours:'',laborCost:'',judge:'',status:'',replyDate:''};
+var D = {unit:'',resp:'',series:'',orderNo:'',_prefix:'',ratioText:'',anomCat:'',anomText:'',prod:'',qty:'',samp:'',bad:'',photo:false,photoData:null,photoData2:null,laborPeople:'',laborHours:'',adminPeople:'',adminHours:'',laborCost:'',judge:'',status:'',replyDate:''};
 var cur = 1;
 var userId = '';
 var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
@@ -439,7 +430,7 @@ function copyLastSafe3(){
   D.resp = lastD.resp || '';
   D.series = lastD.series || '';
   D.anomCat = lastD.anomCat || '';
-  D.anom = Array.isArray(lastD.anom) ? lastD.anom.slice() : [];
+  D.anomText = lastD.anomText || '';
   D.prod = lastD.prod || '';
   D.judge = lastD.judge || '';
   D.status = lastD.status || '';
@@ -484,25 +475,8 @@ function copyLastSafe3(){
     inp.style.display='block'; inp.value=D.anomCat;
   }
 
-  var otherAnomBtn = document.querySelector('#anom-g .sb[onclick*="multiOther"]');
-  var otherAnomInput = document.getElementById('anom-other-in');
-  var predefinedAnom = [];
-  document.getElementById('anom-g').querySelectorAll('.sb').forEach(function(b){
-    var val = b.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
-    if(val && val !== '其他') predefinedAnom.push(val);
-    if(D.anom.indexOf(val) > -1) b.classList.add('on');
-  });
-  var customAnom = D.anom.filter(function(v){ return predefinedAnom.indexOf(v) === -1; });
-  if(customAnom.length){
-    if(otherAnomBtn) otherAnomBtn.classList.add('on');
-    otherAnomInput.style.display = 'block';
-    otherAnomInput.value = customAnom.join('、');
-    D._anomOther = otherAnomInput.value;
-  } else {
-    if(otherAnomBtn) otherAnomBtn.classList.remove('on');
-    otherAnomInput.style.display = 'none';
-    otherAnomInput.value = '';
-  }
+  // 異常狀況文字還原
+  document.getElementById('anom-text-in').value = D.anomText || '';
 
   document.getElementById('series-other-in').value = D.series || '';
   document.getElementById('prod-in').value = D.prod || '';
@@ -525,7 +499,7 @@ function copyLastSafe3(){
 
   chk1(); chk2(); chk3();
   document.getElementById('n1').disabled = !(D.unit && D.resp);
-  document.getElementById('n2').disabled = !(D.anom.length > 0 && D.series && D.anomCat);
+  document.getElementById('n2').disabled = !(D.anomText && D.series && D.anomCat);
   document.getElementById('n3').disabled = !(D.qty && (D.ratioText || (D.bad && D.samp)));
 
   alert('已複製上一筆資料，可直接確認後按下一步。');
@@ -602,42 +576,11 @@ function pickAnomCatOther(btn){
   chk2();
 }
 
-function multi(btn){
-  btn.classList.toggle('on');
-  var val=btn.textContent.trim().replace(/\n.*/,'');
-  var idx=D.anom.indexOf(val);
-  if(btn.classList.contains('on')){ if(idx===-1) D.anom.push(val); }
-  else { if(idx>-1) D.anom.splice(idx,1); }
-  chk2();
-}
-
-function multiOther(btn){
-  var isOn=btn.classList.contains('on');
-  btn.classList.toggle('on',!isOn);
-  var inp=document.getElementById('anom-other-in');
-  if(!isOn){
-    inp.style.display='block'; inp.focus();
-    if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
-    D._anomOther='';
-  } else {
-    inp.style.display='none'; inp.value='';
-    if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
-    D._anomOther=''; chk2();
-  }
-}
-
-function updateAnomOther(val){
-  if(D._anomOther){ var i=D.anom.indexOf(D._anomOther); if(i>-1) D.anom.splice(i,1); }
-  D._anomOther=val.trim();
-  if(D._anomOther) D.anom.push(D._anomOther);
-  chk2();
-}
-
 function setProd(v){ document.getElementById('prod-in').value=v; D.prod=v; chk2(); }
 
 function chk2(){
   D.prod=document.getElementById('prod-in').value.trim();
-  document.getElementById('n2').disabled=!(D.anom.length>0 && D.series && D.anomCat);
+  document.getElementById('n2').disabled=!(D.anomText && D.series && D.anomCat);
 }
 
 function qtyKey(k){
@@ -783,7 +726,7 @@ function buildSummary(){
     row('異常分類','<span style="color:#1a73e8;font-weight:700">'+esc(D.anomCat)+'</span>')+
     row('品名',D.prod||'(未填)')+
     row('客戶訂單編號',D.orderNo||'(未填)')+
-    row('異常狀況',D.anom.join('、'))+
+    row('異常狀況',esc(D.anomText)||'(未填)')+
     row('訂單數量',D.qty)+
     row('不良比例',getRatioValue())+
     row('品質判定',jhtml)+
@@ -819,13 +762,13 @@ async function submitForm(){
   if(D.unit){ var ui=recentUnits.indexOf(D.unit); if(ui>-1) recentUnits.splice(ui,1); recentUnits.unshift(D.unit); recentUnits=recentUnits.slice(0,5); localStorage.setItem('recentUnits',JSON.stringify(recentUnits)); }
   if(D.resp){ var ri=recentResps.indexOf(D.resp); if(ri>-1) recentResps.splice(ri,1); recentResps.unshift(D.resp); recentResps=recentResps.slice(0,5); localStorage.setItem('recentResps',JSON.stringify(recentResps)); }
 
-  var saveD={unit:D.unit,resp:D.resp,series:D.series,anomCat:D.anomCat,anom:D.anom.slice(),prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate,qty:D.qty,ratioText:D.ratioText,bad:D.bad,samp:D.samp};
+  var saveD={unit:D.unit,resp:D.resp,series:D.series,anomCat:D.anomCat,anomText:D.anomText,prod:D.prod,judge:D.judge,status:D.status,replyDate:D.replyDate,qty:D.qty,ratioText:D.ratioText,bad:D.bad,samp:D.samp};
   localStorage.setItem('lastD',JSON.stringify(saveD));
 
   var payload={
     date:D._date, unit:D.unit, resp:D.resp, series:D.series,
     anomCat:D.anomCat,
-    product:D.prod, orderNo:D.orderNo, anomaly:D.anom.join('、'),
+    product:D.prod, orderNo:D.orderNo, anomaly:D.anomText,
     qty:D.qty, ratio:getRatioValue(), ratioText:D.ratioText||'', bad:D.bad||'', samp:D.samp||'',
     laborPeople:D.laborPeople||'0', laborHours:D.laborHours||'0',
     adminPeople:D.adminPeople||'0', adminHours:D.adminHours||'0', laborCost:D.laborCost,
@@ -846,7 +789,7 @@ async function submitForm(){
         '<b>槍型號：</b>'+D.series+'<br>'+
         '<b>異常分類：</b>'+D.anomCat+'<br>'+
         '<b>品名：</b>'+(D.prod||'(未填)')+'<br>'+
-        '<b>異常：</b>'+D.anom.join('、')+'<br>'+
+        '<b>異常：</b>'+D.anomText+'<br>'+
         '<b>比例：</b>'+(getRatioValue()||'(未填)')+'<br>'+
         '<b>判定：</b>'+(D.judge||'(未填)')+
         (D.status?'<br><b>處理狀態：</b>'+D.status:'')+
