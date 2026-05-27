@@ -290,7 +290,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input type="color" id="anno-color" value="#ff0000" style="width:32px;height:32px;border:none;padding:0;cursor:pointer;border-radius:6px;">
     <div style="display:flex;align-items:center;gap:4px;">
       <span style="color:#aaa;font-size:11px;">細</span>
-      <input type="range" id="anno-size" min="1" max="12" value="4" style="width:70px;accent-color:#00b900;">
+      <input type="range" id="anno-size" min="2" max="30" value="6" style="width:70px;accent-color:#00b900;">
       <span style="color:#aaa;font-size:11px;">粗</span>
     </div>
     <div style="display:flex;align-items:center;gap:4px;">
@@ -945,7 +945,7 @@ function drawArrow(ctx, x1, y1, x2, y2, color, size){
   var angle = Math.atan2(y2 - y1, x2 - x1);
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-  ctx.lineWidth = Math.max(size, 3);
+  ctx.lineWidth = size;
   ctx.lineCap = 'round';
   // 線段
   ctx.beginPath();
