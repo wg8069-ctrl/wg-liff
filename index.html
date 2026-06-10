@@ -71,6 +71,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .anno-tool{background:#444;color:#fff;border:1.5px solid #555;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;}
 .anno-tool.active{background:#00b900;border-color:#00b900;color:#fff;font-weight:600;}
 .anno-text-input{position:absolute;background:rgba(0,0,0,.7);color:#fff;border:2px solid #ff0;border-radius:8px;padding:8px 10px;font-size:16px;outline:none;min-width:120px;z-index:210;}
+/* ── 快選字詞 ── */
+.qw-tab{font-size:12px;padding:6px 10px;font-weight:500;}
+.qw-tab.on{border-color:#00b900;background:#e8ffe8;color:#006600;font-weight:600;}
+.qw-chip{padding:6px 12px;border:1.5px solid #ddd;border-radius:14px;font-size:13px;color:#333;cursor:pointer;background:#f9f9f9;-webkit-tap-highlight-color:transparent;transition:all .15s;}
+.qw-chip:active{transform:scale(0.95);}
+.qw-chip.used{background:#e8ffe8;border-color:#00b900;color:#006600;font-weight:600;}
+/* editor placeholder */
+#anom-editor:empty:before{content:attr(data-placeholder);color:#bbb;pointer-events:none;}
+/* inline tag */
+.anom-tag{display:inline-flex;align-items:center;gap:3px;background:#e8ffe8;border:1.5px solid #00b900;color:#006600;border-radius:10px;padding:2px 8px 2px 10px;font-size:13px;font-weight:600;line-height:1.6;white-space:nowrap;cursor:default;user-select:none;-webkit-user-select:none;}
+.anom-tag-x{font-size:14px;line-height:1;cursor:pointer;color:#009900;padding:0 1px;opacity:.7;}
+.anom-tag-x:hover{opacity:1;}
 </style>
 </head>
 <body>
@@ -147,7 +159,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="order-in" placeholder="輸入後面的號碼" oninput="updateOrderNo()">
     <div id="order-preview" style="background:#f0fff0;border:1px solid #00b900;border-radius:8px;padding:8px 12px;font-size:15px;color:#006600;font-weight:600;margin-top:6px;display:none;"></div>
   </div>
-  <!-- ★ 新增：異常分類（必填）★ -->
+  <!-- 異常分類（必填）-->
   <div class="card">
     <div class="card-title">異常分類<span class="req">＊必填</span></div>
     <div class="g2" id="anomcat-g">
@@ -162,16 +174,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="anomcat-other-in" placeholder="請填寫異常分類" style="display:none;margin-top:8px;" oninput="D.anomCat=this.value.trim();chk2()">
     <div class="hint">選「其他」請填寫異常分類</div>
   </div>
+  <!-- 異常狀況 + 快選字詞 -->
   <div class="card">
     <div class="card-title">異常狀況<span class="req">＊必填</span> <span style="color:#aaa;font-size:11px;font-weight:400">（請詳細說明）</span></div>
-    <textarea class="tinput" id="anom-text-in" placeholder="請輸入異常狀況詳細說明" style="min-height:96px;resize:vertical;font-size:15px;line-height:1.6;" oninput="D.anomText=this.value.trim();chk2()"></textarea>
+
+    <!-- 富文字輸入區 (contenteditable) -->
+    <div id="anom-editor"
+      contenteditable="true"
+      style="min-height:96px;border:1.5px solid #ddd;border-radius:8px;padding:12px;font-size:15px;line-height:1.8;outline:none;word-break:break-all;color:#222;background:#fff;cursor:text;"
+      oninput="syncAnomText()"
+      onfocus="this.style.borderColor='#00b900'"
+      onblur="this.style.borderColor='#ddd'"
+      data-placeholder="請輸入異常狀況，或點下方字詞插入標籤"
+    ></div>
+
+    <!-- 快選字詞區 -->
+    <div id="quick-words-wrap" style="margin-top:10px;">
+      <!-- 分類 Tab -->
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;" id="qw-tab-g">
+        <button class="rb qw-tab on" onclick="showQWTab(this,'尺寸異常')">尺寸異常</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'組裝不良')">組裝不良</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'毛邊不良')">毛邊不良</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'混料錯料')">混料錯料</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'包裝異常')">包裝異常</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'標示異常')">標示異常</button>
+      </div>
+      <!-- 字詞 chips -->
+      <div id="qw-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      <div class="hint" style="margin-top:6px;">點字詞插入標籤，標籤間可穿插文字，點 ✕ 刪標籤</div>
+    </div>
   </div>
   <div class="card">
     <div class="card-title">品名 <span style="color:#aaa;font-size:11px;font-weight:400"></span></div>
     <input class="tinput" id="prod-in" placeholder="例：701槍身、307滑套" oninput="D.prod=this.value.trim();chk2()">
     <div class="recent" id="recent-list"></div>
-    <div class="hint">最近使用品名，點一下帶入
-    </div>
+    <div class="hint">最近使用品名，點一下帶入</div>
   </div>
   <div class="nav">
     <button class="btn-back" onclick="go(1)">← 返回</button>
@@ -279,9 +316,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="skip" onclick="D.photo=false;D.photoData=null;D.photoData2=null;document.getElementById('n4').disabled=false;go(5)">沒有照片，先跳過</div>
 </div>
 
-<!-- ★ 照片標註編輯器 (全螢幕 overlay) ★ -->
+<!-- 照片標註編輯器 (全螢幕 overlay) -->
 <div id="anno-overlay" style="position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;">
-  <!-- 工具列 -->
   <div id="anno-toolbar" style="background:#222;padding:8px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
     <button class="anno-tool active" id="at-pen" onclick="setAnnoTool('pen')" style="font-size:16px;">✏️ 畫筆</button>
     <button class="anno-tool" id="at-arrow" onclick="setAnnoTool('arrow')" style="font-size:16px;">➡️ 箭頭</button>
@@ -302,11 +338,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <button onclick="annoUndo()" style="background:#555;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;">↩ 復原</button>
     <button onclick="annoClear()" style="background:#c62828;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;">🗑 清除</button>
   </div>
-  <!-- Canvas 容器 -->
   <div id="anno-canvas-wrap" style="flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:#111;">
     <canvas id="anno-canvas" style="max-width:100%;max-height:100%;touch-action:none;"></canvas>
   </div>
-  <!-- 底部按鈕 -->
   <div style="background:#222;padding:10px;display:flex;gap:8px;flex-shrink:0;">
     <button onclick="annoCancel()" style="flex:1;background:#555;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;">取消</button>
     <button onclick="annoSave()" style="flex:2;background:#00b900;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;">✓ 完成標註</button>
@@ -410,6 +444,109 @@ renderUnitRecent();
 renderRespRecent();
 if(lastD){ document.getElementById('copy-last-wrap').style.display = 'block'; }
 
+/* ══════════════════════════════════════
+   快選字詞
+══════════════════════════════════════ */
+var QW_DATA = {
+  '尺寸異常': ['變形','縮水','孔裂開','孔徑異常','干涉','不密合','間隙過大','過緊','過鬆','尺寸異常'],
+  '組裝不良': ['未組裝','漏裝','裝反','螺絲未鎖緊','螺絲滑牙','軸心未壓平','軸心脫落','組裝不良'],
+  '毛邊不良': ['毛邊','未挫破','孔毛邊','修邊不良'],
+  '混料錯料': ['混料','混版','混美版','混歐版','混4.5mm','混6mm','錯料'],
+  '包裝異常': ['彩盒起皺','彩盒數量異常','吊卡異常','槍盒方向錯誤','沒有泡棉','包裝錯誤'],
+  '標示異常': ['條碼錯誤','貼紙錯誤','雷雕不清楚','品號錯誤','標示錯誤']
+};
+var _qwCurCat = '尺寸異常';
+
+function showQWTab(btn, cat){
+  _qwCurCat = cat;
+  document.querySelectorAll('.qw-tab').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderQWChips();
+}
+
+function renderQWChips(){
+  var wrap = document.getElementById('qw-chips');
+  wrap.innerHTML = '';
+  var words = QW_DATA[_qwCurCat] || [];
+  words.forEach(function(w){
+    var b = document.createElement('button');
+    b.className = 'qw-chip';
+    b.textContent = w;
+    b.onclick = function(){ insertAnomTag(w); };
+    wrap.appendChild(b);
+  });
+}
+
+// 在 editor 游標位置插入標籤
+function insertAnomTag(word){
+  var editor = document.getElementById('anom-editor');
+  editor.focus();
+
+  // 建立 tag span（contenteditable=false 使其不可編輯）
+  var tag = document.createElement('span');
+  tag.className = 'anom-tag';
+  tag.contentEditable = 'false';
+  tag.dataset.word = word;
+  tag.innerHTML = word + ' <span class="anom-tag-x" onmousedown="removeAnomTag(event,this)">✕</span>';
+
+  // 在游標位置插入，若沒有 selection 則附加到末尾
+  var sel = window.getSelection();
+  if(sel && sel.rangeCount > 0){
+    var range = sel.getRangeAt(0);
+    // 確認游標在 editor 內
+    if(editor.contains(range.commonAncestorContainer)){
+      range.deleteContents();
+      range.insertNode(tag);
+      // 游標移到 tag 之後
+      range.setStartAfter(tag);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      editor.appendChild(tag);
+    }
+  } else {
+    editor.appendChild(tag);
+  }
+
+  syncAnomText();
+}
+
+function removeAnomTag(e, xBtn){
+  e.preventDefault();
+  var tag = xBtn.parentNode;
+  if(tag && tag.parentNode){ tag.parentNode.removeChild(tag); }
+  syncAnomText();
+  document.getElementById('anom-editor').focus();
+}
+
+// 把 editor 的內容（標籤文字 + 純文字節點）合成純文字同步到 D.anomText
+function syncAnomText(){
+  var editor = document.getElementById('anom-editor');
+  var result = '';
+  editor.childNodes.forEach(function(node){
+    if(node.nodeType === Node.TEXT_NODE){
+      result += node.textContent;
+    } else if(node.nodeType === Node.ELEMENT_NODE){
+      if(node.classList && node.classList.contains('anom-tag')){
+        result += node.dataset.word || node.textContent.replace('✕','').trim();
+      } else if(node.tagName === 'BR'){
+        result += '\n';
+      } else {
+        result += node.innerText || node.textContent;
+      }
+    }
+  });
+  D.anomText = result.trim();
+  chk2();
+}
+
+// 初始渲染
+renderQWChips();
+
+/* ══════════════════════════════════════
+   最近使用
+══════════════════════════════════════ */
 function renderUnitRecent(){
   var el = document.getElementById('unit-recent-list');
   var hint = document.getElementById('unit-recent-hint');
@@ -464,6 +601,9 @@ function renderRecent(){
   });
 }
 
+/* ══════════════════════════════════════
+   複製上一筆
+══════════════════════════════════════ */
 function copyLastSafe3(){
   if(!lastD) return;
 
@@ -517,7 +657,12 @@ function copyLastSafe3(){
   }
 
   // 異常狀況文字還原
-  document.getElementById('anom-text-in').value = D.anomText || '';
+  var editor = document.getElementById('anom-editor');
+  editor.innerHTML = '';
+  if(D.anomText){
+    editor.appendChild(document.createTextNode(D.anomText));
+  }
+  syncAnomText();
 
   document.getElementById('series-other-in').value = D.series || '';
   document.getElementById('prod-in').value = D.prod || '';
@@ -546,6 +691,9 @@ function copyLastSafe3(){
   alert('已複製上一筆資料，可直接確認後按下一步。');
 }
 
+/* ══════════════════════════════════════
+   導覽
+══════════════════════════════════════ */
 function go(n){
   document.getElementById('s'+cur).classList.remove('active');
   cur=n;
@@ -558,6 +706,9 @@ function go(n){
   window.scrollTo(0,0);
 }
 
+/* ══════════════════════════════════════
+   選取按鈕
+══════════════════════════════════════ */
 function pick(btn, gridId, key){
   var val=btn.textContent.trim().replace(/\n.*/,'').replace(/[✏️]\s*/,'');
   var isOn=btn.classList.contains('on');
@@ -592,7 +743,6 @@ function pickOther(btn, gridId, key, inputId){
 
 function chk1(){ document.getElementById('n1').disabled=!(D.unit&&D.resp); }
 
-// ★ 異常分類選取 ★
 function pickAnomCat(btn){
   var val=btn.textContent.trim();
   var isOn=btn.classList.contains('on');
@@ -624,6 +774,9 @@ function chk2(){
   document.getElementById('n2').disabled=!(D.anomText && D.series && D.anomCat);
 }
 
+/* ══════════════════════════════════════
+   數量鍵盤
+══════════════════════════════════════ */
 function qtyKey(k){
   if(D.qty.length>=6) return;
   D.qty=D.qty+k;
@@ -660,6 +813,9 @@ function updateOrderNo(){
   }
 }
 
+/* ══════════════════════════════════════
+   不良比例
+══════════════════════════════════════ */
 function updateRatioText(v){
   D.ratioText = v.trim();
   var r = document.getElementById('ratio-res');
@@ -720,6 +876,9 @@ function chk3(){
   document.getElementById('n3').disabled=!(D.qty && (hasRatioText || hasRatioNum));
 }
 
+/* ══════════════════════════════════════
+   照片
+══════════════════════════════════════ */
 function handlePic(inp, num){
   if(inp.files&&inp.files[0]){
     var reader=new FileReader();
@@ -731,21 +890,20 @@ function handlePic(inp, num){
       if(num===2){ D.photoData2=e.target.result; D._origPhoto2=e.target.result; }
       document.getElementById('edit-btn-'+num).style.display='block';
       document.getElementById('n4').disabled=false;
-      // 立即詢問是否標註
       if(confirm('要標註這張照片嗎？')) openEditor(num);
     };
     reader.readAsDataURL(inp.files[0]);
   }
 }
 
-// ══════════════════════════════════════
-//  照片標註編輯器
-// ══════════════════════════════════════
+/* ══════════════════════════════════════
+   照片標註編輯器
+══════════════════════════════════════ */
 var annoState = {
   editingNum: 0,
-  tool: 'pen',    // pen | arrow | text
+  tool: 'pen',
   drawing: false,
-  actions: [],    // {type, data}
+  actions: [],
   startX: 0, startY: 0,
   baseImage: null,
   canvas: null, ctx: null,
@@ -770,15 +928,12 @@ function openEditor(num){
     var ww = wrap.clientWidth;
     var wh = wrap.clientHeight;
 
-    // 計算適合的顯示尺寸
     var ratio = Math.min(ww / img.width, wh / img.height, 1);
     var dispW = Math.floor(img.width * ratio);
     var dispH = Math.floor(img.height * ratio);
 
-    // canvas 內部解析度 = 原圖尺寸（高品質輸出）
     canvas.width = img.width;
     canvas.height = img.height;
-    // 顯示尺寸
     canvas.style.width = dispW + 'px';
     canvas.style.height = dispH + 'px';
 
@@ -816,7 +971,6 @@ function getAnnoPos(e){
 
 function bindCanvasEvents(){
   var canvas = annoState.canvas;
-  // 移除舊事件
   canvas.onpointerdown = null;
   canvas.onpointermove = null;
   canvas.onpointerup = null;
@@ -852,7 +1006,6 @@ function bindCanvasEvents(){
         redrawAnno();
       }
     } else if(annoState.tool === 'arrow'){
-      // 即時預覽箭頭
       redrawAnno();
       drawArrow(annoState.ctx, annoState.startX, annoState.startY, pos.x, pos.y,
         document.getElementById('anno-color').value,
@@ -929,7 +1082,6 @@ function redrawAnno(){
     } else if(a.type === 'text'){
       ctx.fillStyle = a.color;
       ctx.font = 'bold ' + a.fontSize + 'px sans-serif';
-      // 文字背景
       var metrics = ctx.measureText(a.text);
       var pad = 4;
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -947,12 +1099,10 @@ function drawArrow(ctx, x1, y1, x2, y2, color, size){
   ctx.fillStyle = color;
   ctx.lineWidth = size;
   ctx.lineCap = 'round';
-  // 線段
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
   ctx.stroke();
-  // 箭頭（較寬角度）
   ctx.beginPath();
   ctx.moveTo(x2, y2);
   ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI/5), y2 - headLen * Math.sin(angle - Math.PI/5));
@@ -969,19 +1119,11 @@ function setAnnoTool(tool){
   if(el) el.classList.add('active');
 }
 
-function annoUndo(){
-  annoState.actions.pop();
-  redrawAnno();
-}
-
-function annoClear(){
-  annoState.actions = [];
-  redrawAnno();
-}
+function annoUndo(){ annoState.actions.pop(); redrawAnno(); }
+function annoClear(){ annoState.actions = []; redrawAnno(); }
 
 function annoCancel(){
   document.getElementById('anno-overlay').style.display = 'none';
-  // 移除殘留的文字輸入框
   document.querySelectorAll('.anno-text-input').forEach(function(el){ el.remove(); });
 }
 
@@ -1000,6 +1142,9 @@ function annoSave(){
   document.querySelectorAll('.anno-text-input').forEach(function(el){ el.remove(); });
 }
 
+/* ══════════════════════════════════════
+   判定 / 狀態
+══════════════════════════════════════ */
 function judgeBtn(btn, val, cls){
   var isOn=btn.classList.contains(cls);
   document.getElementById('judge-g').querySelectorAll('.sb').forEach(function(b){ b.className='sb'; b.style.padding='20px 6px'; b.style.fontSize='15px'; });
@@ -1017,6 +1162,9 @@ function setReplyOnline(btn){
   btn.className='sb on';
 }
 
+/* ══════════════════════════════════════
+   確認摘要
+══════════════════════════════════════ */
 function buildSummary(){
   var t=new Date();
   var d=t.getFullYear()+'/'+(t.getMonth()+1).toString().padStart(2,'0')+'/'+t.getDate().toString().padStart(2,'0');
@@ -1050,6 +1198,9 @@ function showErr(msg){
   setTimeout(function(){ e.style.display='none'; },5000);
 }
 
+/* ══════════════════════════════════════
+   送出
+══════════════════════════════════════ */
 async function submitForm(){
   var btn=document.getElementById('n6');
   btn.disabled=true; btn.textContent='送出中...';
