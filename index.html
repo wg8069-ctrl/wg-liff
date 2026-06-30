@@ -71,15 +71,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .anno-tool{background:#444;color:#fff;border:1.5px solid #555;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;}
 .anno-tool.active{background:#00b900;border-color:#00b900;color:#fff;font-weight:600;}
 .anno-text-input{position:absolute;background:rgba(0,0,0,.7);color:#fff;border:2px solid #ff0;border-radius:8px;padding:8px 10px;font-size:16px;outline:none;min-width:120px;z-index:210;}
-/* ── 快選字詞 ── */
 .qw-tab{font-size:12px;padding:6px 10px;font-weight:500;}
 .qw-tab.on{border-color:#00b900;background:#e8ffe8;color:#006600;font-weight:600;}
 .qw-chip{padding:6px 12px;border:1.5px solid #ddd;border-radius:14px;font-size:13px;color:#333;cursor:pointer;background:#f9f9f9;-webkit-tap-highlight-color:transparent;transition:all .15s;}
 .qw-chip:active{transform:scale(0.95);}
 .qw-chip.used{background:#e8ffe8;border-color:#00b900;color:#006600;font-weight:600;}
-/* editor placeholder */
 #anom-editor:empty:before{content:attr(data-placeholder);color:#bbb;pointer-events:none;}
-/* inline tag */
 .anom-tag{display:inline-flex;align-items:center;gap:3px;background:#e8ffe8;border:1.5px solid #00b900;color:#006600;border-radius:10px;padding:2px 8px 2px 10px;font-size:13px;font-weight:600;line-height:1.6;white-space:nowrap;cursor:default;user-select:none;-webkit-user-select:none;}
 .anom-tag-x{font-size:14px;line-height:1;cursor:pointer;color:#009900;padding:0 1px;opacity:.7;}
 .anom-tag-x:hover{opacity:1;}
@@ -159,7 +156,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="order-in" placeholder="輸入後面的號碼" oninput="updateOrderNo()">
     <div id="order-preview" style="background:#f0fff0;border:1px solid #00b900;border-radius:8px;padding:8px 12px;font-size:15px;color:#006600;font-weight:600;margin-top:6px;display:none;"></div>
   </div>
-  <!-- 異常分類（必填）-->
   <div class="card">
     <div class="card-title">異常分類<span class="req">＊必填</span></div>
     <div class="g2" id="anomcat-g">
@@ -174,11 +170,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input class="tinput" id="anomcat-other-in" placeholder="請填寫異常分類" style="display:none;margin-top:8px;" oninput="D.anomCat=this.value.trim();chk2()">
     <div class="hint">選「其他」請填寫異常分類</div>
   </div>
-  <!-- 異常狀況 + 快選字詞 -->
   <div class="card">
     <div class="card-title">異常狀況<span class="req">＊必填</span> <span style="color:#aaa;font-size:11px;font-weight:400">（請詳細說明）</span></div>
-
-    <!-- 富文字輸入區 (contenteditable) -->
     <div id="anom-editor"
       contenteditable="true"
       style="min-height:96px;border:1.5px solid #ddd;border-radius:8px;padding:12px;font-size:15px;line-height:1.8;outline:none;word-break:break-all;color:#222;background:#fff;cursor:text;"
@@ -187,19 +180,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       onblur="this.style.borderColor='#ddd'"
       data-placeholder="請輸入異常狀況，或點下方字詞插入標籤"
     ></div>
-
-    <!-- 快選字詞區 -->
     <div id="quick-words-wrap" style="margin-top:10px;">
-      <!-- 分類 Tab -->
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;" id="qw-tab-g">
-        <button class="rb qw-tab on" onclick="showQWTab(this,'尺寸異常')">尺寸異常</button>
-        <button class="rb qw-tab" onclick="showQWTab(this,'組裝不良')">組裝不良</button>
-        <button class="rb qw-tab" onclick="showQWTab(this,'毛邊不良')">毛邊不良</button>
-        <button class="rb qw-tab" onclick="showQWTab(this,'混料錯料')">混料錯料</button>
-        <button class="rb qw-tab" onclick="showQWTab(this,'包裝異常')">包裝異常</button>
-        <button class="rb qw-tab" onclick="showQWTab(this,'標示異常')">標示異常</button>
+        <button class="rb qw-tab on" onclick="showQWTab(this,'尺寸相關')">尺寸異常</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'組裝相關')">組裝不良</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'毛邊相關')">毛邊不良</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'混料相關')">混料錯料</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'包裝相關')">包裝異常</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'標示相關')">標示異常</button>
+        <button class="rb qw-tab" onclick="showQWTab(this,'庫出相關')">庫出異常</button>
       </div>
-      <!-- 字詞 chips -->
       <div id="qw-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       <div class="hint" style="margin-top:6px;">點字詞插入標籤，標籤間可穿插文字，點 ✕ 刪標籤</div>
     </div>
@@ -290,7 +280,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <div class="step" id="s4">
   <div class="card">
     <div class="card-title">異常照片（最多 2 張，可標註）</div>
-    <!-- 照片 1 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera1').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 1 張</span></button>
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery1').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 1 張</span></button>
@@ -299,7 +288,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <input type="file" id="pf-gallery1" accept="image/*" style="display:none" onchange="handlePic(this,1)">
     <img id="pp1" style="width:100%;border-radius:8px;margin-top:6px;display:none;max-height:200px;object-fit:cover;">
     <button class="sb" id="edit-btn-1" style="display:none;margin-top:6px;width:100%;background:#fff3e0;border-color:#e37400;color:#e37400;" onclick="openEditor(1)">✏️ 標註照片 1</button>
-    <!-- 照片 2 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;margin-bottom:8px;">
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-camera2').click()">📷 拍照<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
       <button class="sb" style="padding:12px 6px;" onclick="document.getElementById('pf-gallery2').click()">🖼️ 圖庫<br><span style="font-size:11px;color:#888">第 2 張（選填）</span></button>
@@ -316,7 +304,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
   <div class="skip" onclick="D.photo=false;D.photoData=null;D.photoData2=null;document.getElementById('n4').disabled=false;go(5)">沒有照片，先跳過</div>
 </div>
 
-<!-- 照片標註編輯器 (全螢幕 overlay) -->
+<!-- 照片標註編輯器 -->
 <div id="anno-overlay" style="position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;">
   <div id="anno-toolbar" style="background:#222;padding:8px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
     <button class="anno-tool active" id="at-pen" onclick="setAnnoTool('pen')" style="font-size:16px;">✏️ 畫筆</button>
@@ -448,40 +436,15 @@ if(lastD){ document.getElementById('copy-last-wrap').style.display = 'block'; }
    快選字詞
 ══════════════════════════════════════ */
 var QW_DATA = {
-  '尺寸': ['過ar cur = 1;
-var userId = '';
-var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
-var recentUnits = JSON.parse(localStorage.getItem('recentUnits') || '[]');
-var recentResps = JSON.parse(localStorage.getItem('recentResps') || '[]');
-var lastD = JSON.parse(localStorage.getItem('lastD') || 'null');
-
-liff.init({liffId: LIFF_ID}).then(function(){
-  if(liff.isLoggedIn()){
-    liff.getProfile().then(function(p){
-      userId = p.userId;
-      console.log('LIFF userId:', userId);
-    }).catch(function(e){ console.log('getProfile failed:', e); });
-  } else { liff.login(); }
-}).catch(function(e){ console.log('LIFF init failed:', e); });
-
-renderRecent();
-renderUnitRecent();
-renderRespRecent();
-if(lastD){ document.getElementById('copy-last-wrap').style.display = 'block'; }
-
-/* ══════════════════════════════════════
-   快選字詞
-══════════════════════════════════════ */
-var QW_DATA = {
   '尺寸相關': ['偏大','偏小','變形','縮水','孔裂開','孔徑異常','干涉','不密合','間隙過大','過緊','過鬆','尺寸異常','尺寸'],
   '組裝相關': ['回復不順','未組裝','漏裝','裝反','螺絲未鎖緊','螺絲滑牙','軸心未壓平','軸心脫落','組裝不良','未鎖密','沙孔','不易掉落','組裝'],
-  '毛邊相關': ['毛邊不良˙','未挫破','孔毛邊','修邊不良','毛邊太大','毛邊'],
-  '混料相關': ['混料','混版','混美版','混歐版','混4.5mm','混6mm','錯料','混料'],
+  '毛邊相關': ['毛邊不良','未挫破','孔毛邊','修邊不良','毛邊太大','毛邊'],
+  '混料相關': ['混料','混版','混美版','混歐版','混4.5mm','混6mm','錯料'],
   '包裝相關': ['彩盒起皺','彩盒數量異常','吊卡異常','槍盒方向錯誤','沒有泡棉','包裝錯誤','彩盒','外箱','包裝'],
-  '標示相關': ['條碼錯誤','貼紙錯誤','雷雕不清楚','品號錯誤','標示錯誤','標示']
+  '標示相關': ['條碼錯誤','貼紙錯誤','雷雕不清楚','品號錯誤','標示錯誤','標示'],
   '庫出相關': ['庫出過多','庫出錯誤','未庫出','庫出','標示錯誤']
 };
-var _qwCurCat = '尺寸異常';
+var _qwCurCat = '尺寸相關';
 
 function showQWTab(btn, cat){
   _qwCurCat = cat;
@@ -503,27 +466,20 @@ function renderQWChips(){
   });
 }
 
-// 在 editor 游標位置插入標籤
 function insertAnomTag(word){
   var editor = document.getElementById('anom-editor');
   editor.focus();
-
-  // 建立 tag span（contenteditable=false 使其不可編輯）
   var tag = document.createElement('span');
   tag.className = 'anom-tag';
   tag.contentEditable = 'false';
   tag.dataset.word = word;
   tag.innerHTML = word + ' <span class="anom-tag-x" onmousedown="removeAnomTag(event,this)">✕</span>';
-
-  // 在游標位置插入，若沒有 selection 則附加到末尾
   var sel = window.getSelection();
   if(sel && sel.rangeCount > 0){
     var range = sel.getRangeAt(0);
-    // 確認游標在 editor 內
     if(editor.contains(range.commonAncestorContainer)){
       range.deleteContents();
       range.insertNode(tag);
-      // 游標移到 tag 之後
       range.setStartAfter(tag);
       range.collapse(true);
       sel.removeAllRanges();
@@ -534,7 +490,6 @@ function insertAnomTag(word){
   } else {
     editor.appendChild(tag);
   }
-
   syncAnomText();
 }
 
@@ -546,7 +501,6 @@ function removeAnomTag(e, xBtn){
   document.getElementById('anom-editor').focus();
 }
 
-// 把 editor 的內容（標籤文字 + 純文字節點）合成純文字同步到 D.anomText
 function syncAnomText(){
   var editor = document.getElementById('anom-editor');
   var result = '';
@@ -567,7 +521,6 @@ function syncAnomText(){
   chk2();
 }
 
-// 初始渲染
 renderQWChips();
 
 /* ══════════════════════════════════════
@@ -632,7 +585,6 @@ function renderRecent(){
 ══════════════════════════════════════ */
 function copyLastSafe3(){
   if(!lastD) return;
-
   D.unit = lastD.unit || '';
   D.resp = lastD.resp || '';
   D.series = lastD.series || '';
@@ -662,15 +614,14 @@ function copyLastSafe3(){
   });
 
   document.getElementById('unit-recent-list').querySelectorAll('.rbtn').forEach(function(b){
-    b.style.background = '#f9f9f9'; b.style.borderColor = '#ddd';
-    b.style.color = '#555'; b.style.fontWeight = '400';
+    b.style.background='#f9f9f9'; b.style.borderColor='#ddd';
+    b.style.color='#555'; b.style.fontWeight='400';
   });
   document.getElementById('resp-recent-list').querySelectorAll('.rbtn').forEach(function(b){
-    b.style.background = '#f9f9f9'; b.style.borderColor = '#ddd';
-    b.style.color = '#555'; b.style.fontWeight = '400';
+    b.style.background='#f9f9f9'; b.style.borderColor='#ddd';
+    b.style.color='#555'; b.style.fontWeight='400';
   });
 
-  // 異常分類還原
   document.getElementById('anomcat-g').querySelectorAll('.sb').forEach(function(b){
     var val = b.textContent.trim().replace(/✏️\s*/,'');
     if(val === D.anomCat) b.classList.add('on');
@@ -682,12 +633,9 @@ function copyLastSafe3(){
     inp.style.display='block'; inp.value=D.anomCat;
   }
 
-  // 異常狀況文字還原
   var editor = document.getElementById('anom-editor');
   editor.innerHTML = '';
-  if(D.anomText){
-    editor.appendChild(document.createTextNode(D.anomText));
-  }
+  if(D.anomText){ editor.appendChild(document.createTextNode(D.anomText)); }
   syncAnomText();
 
   document.getElementById('series-other-in').value = D.series || '';
@@ -943,32 +891,26 @@ function openEditor(num){
   setAnnoTool('pen');
   var src = (num===1) ? D._origPhoto1 : D._origPhoto2;
   if(!src) return;
-
   var overlay = document.getElementById('anno-overlay');
   overlay.style.display = 'flex';
-
   var img = new Image();
   img.onload = function(){
     var canvas = document.getElementById('anno-canvas');
     var wrap = document.getElementById('anno-canvas-wrap');
     var ww = wrap.clientWidth;
     var wh = wrap.clientHeight;
-
     var ratio = Math.min(ww / img.width, wh / img.height, 1);
     var dispW = Math.floor(img.width * ratio);
     var dispH = Math.floor(img.height * ratio);
-
     canvas.width = img.width;
     canvas.height = img.height;
     canvas.style.width = dispW + 'px';
     canvas.style.height = dispH + 'px';
-
     annoState.canvas = canvas;
     annoState.ctx = canvas.getContext('2d');
     annoState.baseImage = img;
     annoState.scaleX = img.width / dispW;
     annoState.scaleY = img.height / dispH;
-
     redrawAnno();
     bindCanvasEvents();
   };
@@ -1000,13 +942,11 @@ function bindCanvasEvents(){
   canvas.onpointerdown = null;
   canvas.onpointermove = null;
   canvas.onpointerup = null;
-
   canvas.onpointerdown = function(e){
     e.preventDefault();
     var pos = getAnnoPos(e);
     var color = document.getElementById('anno-color').value;
     var size = parseInt(document.getElementById('anno-size').value);
-
     if(annoState.tool === 'pen'){
       annoState.drawing = true;
       var penAction = {type:'pen', color:color, size:size, points:[{x:pos.x,y:pos.y}]};
@@ -1019,12 +959,10 @@ function bindCanvasEvents(){
       showTextInput(pos.x, pos.y, color, size);
     }
   };
-
   canvas.onpointermove = function(e){
     e.preventDefault();
     if(!annoState.drawing) return;
     var pos = getAnnoPos(e);
-
     if(annoState.tool === 'pen'){
       var last = annoState.actions[annoState.actions.length - 1];
       if(last && last.type === 'pen'){
@@ -1038,13 +976,11 @@ function bindCanvasEvents(){
         parseInt(document.getElementById('anno-size').value));
     }
   };
-
   canvas.onpointerup = function(e){
     e.preventDefault();
     if(!annoState.drawing) return;
     annoState.drawing = false;
     var pos = getAnnoPos(e);
-
     if(annoState.tool === 'arrow'){
       var color = document.getElementById('anno-color').value;
       var size = parseInt(document.getElementById('anno-size').value);
@@ -1062,7 +998,6 @@ function showTextInput(x, y, color, size){
   var displayX = x / annoState.scaleX + (rect.left - wrap.getBoundingClientRect().left);
   var displayY = y / annoState.scaleY + (rect.top - wrap.getBoundingClientRect().top);
   var fontSize = parseInt(document.getElementById('anno-font-size').value);
-
   var inp = document.createElement('input');
   inp.className = 'anno-text-input';
   inp.type = 'text';
@@ -1073,7 +1008,6 @@ function showTextInput(x, y, color, size){
   inp.style.fontSize = Math.max(14, fontSize / annoState.scaleX) + 'px';
   wrap.appendChild(inp);
   inp.focus();
-
   var done = function(){
     var val = inp.value.trim();
     if(val){
@@ -1092,7 +1026,6 @@ function redrawAnno(){
   if(!ctx || !img) return;
   ctx.clearRect(0, 0, annoState.canvas.width, annoState.canvas.height);
   ctx.drawImage(img, 0, 0);
-
   annoState.actions.forEach(function(a){
     if(a.type === 'pen' && a.points.length > 1){
       ctx.strokeStyle = a.color;
