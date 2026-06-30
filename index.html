@@ -448,12 +448,38 @@ if(lastD){ document.getElementById('copy-last-wrap').style.display = 'block'; }
    快選字詞
 ══════════════════════════════════════ */
 var QW_DATA = {
-  '尺寸異常': ['變形','縮水','孔裂開','孔徑異常','干涉','不密合','間隙過大','過緊','過鬆','尺寸異常'],
-  '組裝不良': ['未組裝','漏裝','裝反','螺絲未鎖緊','螺絲滑牙','軸心未壓平','軸心脫落','組裝不良'],
-  '毛邊不良': ['毛邊','未挫破','孔毛邊','修邊不良'],
-  '混料錯料': ['混料','混版','混美版','混歐版','混4.5mm','混6mm','錯料'],
-  '包裝異常': ['彩盒起皺','彩盒數量異常','吊卡異常','槍盒方向錯誤','沒有泡棉','包裝錯誤'],
-  '標示異常': ['條碼錯誤','貼紙錯誤','雷雕不清楚','品號錯誤','標示錯誤']
+  '尺寸': ['過ar cur = 1;
+var userId = '';
+var recentProds = JSON.parse(localStorage.getItem('recentProds') || '["WC4-795B-CR","WC4-800A","CB26-001"]');
+var recentUnits = JSON.parse(localStorage.getItem('recentUnits') || '[]');
+var recentResps = JSON.parse(localStorage.getItem('recentResps') || '[]');
+var lastD = JSON.parse(localStorage.getItem('lastD') || 'null');
+
+liff.init({liffId: LIFF_ID}).then(function(){
+  if(liff.isLoggedIn()){
+    liff.getProfile().then(function(p){
+      userId = p.userId;
+      console.log('LIFF userId:', userId);
+    }).catch(function(e){ console.log('getProfile failed:', e); });
+  } else { liff.login(); }
+}).catch(function(e){ console.log('LIFF init failed:', e); });
+
+renderRecent();
+renderUnitRecent();
+renderRespRecent();
+if(lastD){ document.getElementById('copy-last-wrap').style.display = 'block'; }
+
+/* ══════════════════════════════════════
+   快選字詞
+══════════════════════════════════════ */
+var QW_DATA = {
+  '尺寸相關': ['偏大','偏小','變形','縮水','孔裂開','孔徑異常','干涉','不密合','間隙過大','過緊','過鬆','尺寸異常','尺寸'],
+  '組裝相關': ['回復不順','未組裝','漏裝','裝反','螺絲未鎖緊','螺絲滑牙','軸心未壓平','軸心脫落','組裝不良','未鎖密','沙孔','不易掉落','組裝'],
+  '毛邊相關': ['毛邊不良˙','未挫破','孔毛邊','修邊不良','毛邊太大','毛邊'],
+  '混料相關': ['混料','混版','混美版','混歐版','混4.5mm','混6mm','錯料','混料'],
+  '包裝相關': ['彩盒起皺','彩盒數量異常','吊卡異常','槍盒方向錯誤','沒有泡棉','包裝錯誤','彩盒','外箱','包裝'],
+  '標示相關': ['條碼錯誤','貼紙錯誤','雷雕不清楚','品號錯誤','標示錯誤','標示']
+  '庫出相關': ['庫出過多','庫出錯誤','未庫出','庫出','標示錯誤']
 };
 var _qwCurCat = '尺寸異常';
 
